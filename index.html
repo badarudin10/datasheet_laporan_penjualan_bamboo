@@ -8,119 +8,71 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #1e2f23; 
-            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
-            color: white;
-            min-height: 100vh;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-        }
-        .stat-card-green { background: #4caf50; shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-        .stat-card-blue { background: #5da9e9; shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-        .stat-card-orange { background: #f48c42; shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-        .product-img { height: 180px; width: 100%; object-fit: cover; border-radius: 1.5rem 1.5rem 0 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #1a2a1f url('https://www.transparenttextures.com/patterns/dark-wood.png'); color: white; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2rem; }
+        .stat-card-green { background: linear-gradient(135deg, #4caf50, #1b5e20); }
+        .stat-card-blue { background: linear-gradient(135deg, #2196f3, #0d47a1); }
+        .stat-card-orange { background: linear-gradient(135deg, #ff9800, #e65100); }
     </style>
 </head>
-<body class="p-4 md:p-8 pb-20">
-
+<body class="p-4 md:p-10">
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-10">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div class="flex items-center gap-4">
-                <div class="bg-green-500 p-3 rounded-2xl font-black text-white shadow-lg text-xl">BA</div>
-                <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight">BambooArt <span class="text-green-400">Dashboard</span></h1>
-                    <p class="text-[10px] text-green-300/50 uppercase font-bold tracking-[0.2em]">Crafting Excellence 2026</p>
-                </div>
+                <div class="bg-green-500 p-4 rounded-3xl font-black text-2xl shadow-xl text-white">BA</div>
+                <h1 class="text-3xl font-extrabold tracking-tight">BambooArt <span class="text-green-400">Dashboard</span></h1>
             </div>
-            <div class="hidden md:flex gap-3 text-[10px] font-bold uppercase">
-                <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-green-400 tracking-widest italic italic italic italic">● System Active</div>
-                <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-white tracking-widest italic italic italic italic italic">Year: 2026</div>
+            <div class="bg-white/5 border border-white/10 px-6 py-2 rounded-full text-[10px] font-bold tracking-widest text-green-400">● LIVE DATA SINKRON</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 text-white">
+            <div class="stat-card-green p-10 rounded-[2.5rem] shadow-2xl">
+                <p class="text-xs font-bold uppercase opacity-80 mb-2">Total Omzet</p>
+                <h2 id="displayRev" class="text-4xl font-black italic text-white">Rp 0</h2>
             </div>
+            <div class="stat-card-blue p-10 rounded-[2.5rem] shadow-2xl">
+                <p class="text-xs font-bold uppercase opacity-80 mb-2">Unit Terjual</p>
+                <h2 id="displaySold" class="text-5xl font-black italic text-white">0</h2>
+            </div>
+            <div class="stat-card-orange p-10 rounded-[2.5rem] shadow-2xl">
+                <p class="text-xs font-bold uppercase opacity-80 mb-2">Sisa Stok</p>
+                <h2 id="displayStock" class="text-4xl font-black italic text-white">0</h2>
+            </div>
+        </div>
+
+        <div class="glass-card p-8 mb-10 h-80">
+            <canvas id="lineChart"></canvas>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-            <div class="stat-card-green p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                <p class="text-xs font-bold uppercase opacity-70 mb-2">Total Omzet</p>
-                <h2 id="displayRev" class="text-3xl font-black italic">Rp 0</h2>
-                <div class="absolute -right-4 -bottom-4 opacity-10 text-8xl">💰</div>
+            <div class="glass-card overflow-hidden bg-white/5">
+                <img src="https://images.unsplash.com/photo-1544413647-ad6717a26f98?w=500" class="h-48 w-full object-cover border-b-2 border-green-500">
+                <div class="p-4 text-center font-bold">KAPAL PINISI</div>
             </div>
-            <div class="stat-card-blue p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                <p class="text-xs font-bold uppercase opacity-70 mb-2 text-white">Total Unit Terjual</p>
-                <h2 id="displaySold" class="text-4xl font-black italic tracking-tighter text-white">0</h2>
-                <div class="absolute -right-4 -bottom-4 opacity-10 text-8xl">📦</div>
+            <div class="glass-card overflow-hidden bg-white/5">
+                <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=500" class="h-48 w-full object-cover border-b-2 border-green-500">
+                <div class="p-4 text-center font-bold">RUMAH TRADISIONAL</div>
             </div>
-            <div class="stat-card-orange p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                <p class="text-xs font-bold uppercase opacity-70 mb-2 text-white">Stok Tersedia</p>
-                <h2 id="displayStock" class="text-3xl font-black italic text-white tracking-tighter">0</h2>
-                <div class="absolute -right-4 -bottom-4 opacity-10 text-8xl">📉</div>
+            <div class="glass-card overflow-hidden bg-white/5">
+                <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500" class="h-48 w-full object-cover border-b-2 border-green-500">
+                <div class="p-4 text-center font-bold">MOBIL KLASIK</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-            <div class="lg:col-span-2 glass-card p-8">
-                <h3 class="text-lg font-bold mb-8 italic border-l-4 border-green-500 pl-4 uppercase tracking-tighter text-green-400 text-[12px]">Tren Penjualan Bulanan</h3>
-                <div class="h-64"><canvas id="lineChart"></canvas></div>
-            </div>
-            <div class="glass-card p-8 flex flex-col justify-center gap-6">
-                <div class="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
-                    <p class="text-[9px] uppercase font-bold text-gray-400 mb-1">Produk Favorit</p>
-                    <p class="font-bold text-green-400 text-sm">Rumah & Kapal Pinisi</p>
-                </div>
-                <div class="bg-white/5 p-4 rounded-2xl border border-white/5 text-center text-center text-center text-center text-center">
-                    <p class="text-[9px] uppercase font-bold text-gray-400 mb-1">Bulan Terpadat</p>
-                    <p class="font-bold text-blue-400 text-sm italic italic">Juli (Puncak Musim)</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="mb-14">
-            <h3 class="text-xl font-bold mb-8 text-center italic border-b-2 border-green-500/30 inline-block pb-2 w-full uppercase tracking-widest">Produk Unggulan - Bestseller</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white rounded-[2rem] overflow-hidden shadow-2xl transition hover:scale-105">
-                    <img src="https://images.unsplash.com/photo-1544413647-ad6717a26f98?q=80&w=800" class="product-img">
-                    <div class="p-6 text-center text-gray-800">
-                        <h4 class="font-black text-lg">Kapal Pinisi Bambu</h4>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Peringkat 1</p>
-                    </div>
-                </div>
-                <div class="bg-white rounded-[2rem] overflow-hidden shadow-2xl transition hover:scale-105">
-                    <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=800" class="product-img">
-                    <div class="p-6 text-center text-gray-800">
-                        <h4 class="font-black text-lg text-lg">Rumah Tradisional</h4>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Peringkat 2</p>
-                    </div>
-                </div>
-                <div class="bg-white rounded-[2rem] overflow-hidden shadow-2xl transition hover:scale-105">
-                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800" class="product-img">
-                    <div class="p-6 text-center text-gray-800 text-center text-center text-center text-center">
-                        <h4 class="font-black text-lg">Mobil Klasik</h4>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Peringkat 3</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass-card p-8">
-            <h3 class="text-lg font-bold mb-8 italic border-l-4 border-green-500 pl-4 uppercase tracking-tighter text-green-400 text-[12px]">Detail Inventori & Stok Real-Time</h3>
+        <div class="glass-card overflow-hidden shadow-2xl">
+            <div class="p-6 border-b border-white/10 bg-white/5 font-bold text-green-400">INVENTORY DETAIL</div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead>
-                        <tr class="bg-white/5 text-green-500 border-b border-white/10">
-                            <th class="p-5 uppercase text-[10px] font-black tracking-widest rounded-tl-2xl">Nama Produk</th>
-                            <th class="p-5 uppercase text-[10px] font-black tracking-widest text-center">Terjual</th>
-                            <th class="p-5 uppercase text-[10px] font-black tracking-widest text-center">Sisa Stok</th>
-                            <th class="p-5 uppercase text-[10px] font-black tracking-widest text-right rounded-tr-2xl">Status</th>
+                    <thead class="bg-black/20 text-xs text-green-500 font-black">
+                        <tr>
+                            <th class="p-6">PRODUK</th>
+                            <th class="p-6 text-center">TERJUAL</th>
+                            <th class="p-6 text-center text-center">STOK</th>
+                            <th class="p-6 text-right">STATUS</th>
                         </tr>
                     </thead>
-                    <tbody id="productTableBody" class="divide-y divide-white/5 text-gray-300">
-                        </tbody>
+                    <tbody id="tableBody" class="divide-y divide-white/5"></tbody>
                 </table>
             </div>
         </div>
@@ -131,70 +83,69 @@
 
         function fetchData() {
             Papa.parse(sheetUrl, {
-                download: true, header: false, skipEmptyLines: true,
+                download: true,
                 complete: function(results) {
-                    const rows = results.data;
-                    const totalRow = rows.find(r => r[2] && r[2].toString().toUpperCase().includes('TOTAL'));
+                    const data = results.data;
+                    const header = data[2]; // Biasanya baris judul ada di baris ke-3 (index 2)
                     
+                    // Mencari index kolom secara dinamis
+                    const idxSold = header.findIndex(h => h.includes("Unit Keluar") || h.includes("Terjual"));
+                    const idxStock = header.findIndex(h => h.includes("Sisa Stok") || h.includes("Stok Akhir"));
+                    const idxRev = header.findIndex(h => h.includes("Omzet") || h.includes("Total Harga"));
+
+                    // Update Angka Utama dari Baris TOTAL
+                    const totalRow = data.find(r => r.some(cell => cell.toString().toUpperCase().includes("TOTAL")));
                     if (totalRow) {
-                        document.getElementById('displaySold').innerText = totalRow[18] || "0";
-                        document.getElementById('displayStock').innerText = totalRow[19] || "0";
-                        document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0");
+                        document.getElementById('displaySold').innerText = totalRow[idxSold] || "0";
+                        document.getElementById('displayStock').innerText = totalRow[idxStock] || "0";
+                        document.getElementById('displayRev').innerText = "Rp " + (totalRow[idxRev] || "0");
                         
-                        const monthlyData = [];
-                        for (let i = 4; i <= 15; i++) {
-                            monthlyData.push(parseInt(totalRow[i]?.toString().replace(/\D/g, '')) || 0);
-                        }
-                        renderChart(monthlyData);
+                        // Grafik Bulanan (ambil 12 kolom dari index 4 ke depan)
+                        const monthlyValues = totalRow.slice(4, 16).map(v => parseInt(v.toString().replace(/\D/g, '')) || 0);
+                        renderChart(monthlyValues);
                     }
 
-                    const tableBody = document.getElementById('productTableBody');
-                    tableBody.innerHTML = '';
-                    rows.forEach((row, index) => {
-                        const name = row[2] ? row[2].trim() : "";
-                        if (index > 2 && name !== "" && !name.toUpperCase().includes("TOTAL") && !name.toUpperCase().includes("NAMA")) {
-                            const sold = row[18] || "0";
-                            const stock = parseInt(row[19]) || 0;
-                            const isLow = stock < 20;
-                            const badge = isLow ? 'bg-red-600/20 text-red-400 border-red-500/50 italic italic' : 'bg-green-600/20 text-green-400 border-green-500/50';
-                            
-                            tableBody.innerHTML += `
+                    // Isi Tabel
+                    const tbody = document.getElementById('tableBody');
+                    tbody.innerHTML = '';
+                    data.forEach((row, i) => {
+                        if (i > 2 && row[2] && !row[2].includes("TOTAL") && row[idxSold]) {
+                            const stockVal = parseInt(row[idxStock]) || 0;
+                            tbody.innerHTML += `
                                 <tr class="hover:bg-white/5 transition">
-                                    <td class="p-5 font-bold text-gray-100">${name}</td>
-                                    <td class="p-5 font-mono text-center text-blue-300 font-bold">${sold}</td>
-                                    <td class="p-5 font-mono text-center ${isLow ? 'text-red-400 font-black' : ''}">${stock}</td>
-                                    <td class="p-5 text-right"><span class="text-[9px] px-3 py-1 rounded-full border ${badge} font-bold">${isLow ? 'STOK KRITIS' : 'AMAN'}</span></td>
-                                </tr>
-                            `;
+                                    <td class="p-6 font-bold">${row[2]}</td>
+                                    <td class="p-6 text-center font-mono text-blue-400">${row[idxSold]}</td>
+                                    <td class="p-6 text-center font-mono">${stockVal}</td>
+                                    <td class="p-6 text-right">
+                                        <span class="px-3 py-1 rounded-full text-[9px] font-black ${stockVal < 15 ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}">
+                                            ${stockVal < 15 ? 'RE-STOCK' : 'AMAN'}
+                                        </span>
+                                    </td>
+                                </tr>`;
                         }
                     });
                 }
             });
         }
 
-        let myChart;
         function renderChart(data) {
             const ctx = document.getElementById('lineChart');
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
                     datasets: [{
                         data: data, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        fill: true, tension: 0.4, borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#fff'
+                        fill: true, tension: 0.4, borderWidth: 4, pointRadius: 4
                     }]
                 },
-                options: { 
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { display: false }, x: { ticks: { color: 'rgba(255,255,255,0.4)' }, grid: { display: false } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, 
+                    scales: { y: { display: false }, x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { display: false } } }
                 }
             });
         }
 
         fetchData();
-        setInterval(fetchData, 300000);
     </script>
 </body>
 </html>
