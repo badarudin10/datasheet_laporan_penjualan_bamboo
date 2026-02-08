@@ -3,95 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Monitoring Penjualan BambooArt</title>
+    <title>BambooArt Dashboard Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f2f0; }
-        .bamboo-bg { background: linear-gradient(135deg, #1e3a1e 0%, #0d1a0d 100%); }
-        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .product-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #1e2f23; /* Hijau Kayu Gelap */
+            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+            color: white;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+
+        .stat-card-green { background: #4caf50; color: white; }
+        .stat-card-blue { background: #5da9e9; color: white; }
+        .stat-card-orange { background: #f48c42; color: white; }
+        
+        canvas { max-height: 250px !important; }
     </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="p-4 md:p-8">
 
-    <header class="bamboo-bg text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl mb-[-4rem]">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-            <div>
-                <h1 class="text-3xl font-bold tracking-tight">BambooArt <span class="text-green-400">Dashboard</span></h1>
-                <p id="status" class="text-green-300/70 text-sm mt-1 italic italic">🔄 Menyambungkan data...</p>
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-3">
+                <div class="bg-green-500 p-2 rounded-lg font-bold text-white">BA</div>
+                <h1 class="text-2xl font-bold tracking-tight">BambooArt Dashboard</h1>
             </div>
-            <div class="mt-6 md:mt-0 bg-white/10 p-4 rounded-2xl border border-white/10 backdrop-blur-sm text-center">
-                <p class="text-[10px] uppercase font-bold opacity-60">Total Omzet Tahunan</p>
-                <h2 id="displayRev" class="text-2xl font-black text-white leading-none mt-1">Rp 0</h2>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-6xl mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-6 rounded-3xl card-shadow flex flex-col justify-center">
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Unit Terjual</p>
-                <div class="flex items-baseline gap-2">
-                    <h2 id="displaySold" class="text-4xl font-black text-gray-800">0</h2>
-                    <span class="text-gray-400 font-bold">Pcs</span>
-                </div>
-                <div id="soldBar" class="w-full bg-gray-100 h-2 rounded-full mt-4">
-                    <div id="soldProgress" class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+            <div class="flex gap-3">
+                <button onclick="window.print()" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-bold text-sm shadow-lg">Cetak PDF</button>
+                <div class="bg-black/30 border border-white/20 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                    ✅ Tahun Buku 2026
                 </div>
             </div>
+        </div>
 
-            <div class="bg-white p-6 rounded-3xl card-shadow border-l-8 border-orange-500">
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Stok Tersedia</p>
-                <h2 id="displayStock" class="text-4xl font-black text-gray-800">0</h2>
-                <p id="stockAlert" class="text-[10px] font-bold mt-2 uppercase text-green-600 tracking-tighter italic italic italic italic">Stok Aman</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stat-card-green p-8 rounded-[2rem] shadow-xl">
+                <p class="text-sm font-semibold opacity-90 uppercase mb-2">Total Omzet Tahunan</p>
+                <h2 id="displayRev" class="text-3xl font-extrabold italic">Rp 172.475.000</h2>
             </div>
-
-            <div class="bg-white p-4 rounded-3xl card-shadow flex items-center justify-center">
-                <button onclick="window.print()" class="w-full py-4 bg-stone-800 hover:bg-black text-white rounded-2xl font-bold transition">🖨️ Cetak Laporan</button>
+            <div class="stat-card-blue p-8 rounded-[2rem] shadow-xl">
+                <p class="text-sm font-semibold opacity-90 uppercase mb-2">Total Unit Terjual</p>
+                <h2 id="displaySold" class="text-3xl font-extrabold italic">2.420</h2>
+                <p class="text-xs mt-2 opacity-80">38% dari total produksi terjual</p>
+            </div>
+            <div class="stat-card-orange p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
+                <p class="text-sm font-semibold opacity-90 uppercase mb-2">Stok Tersedia</p>
+                <h2 id="displayStock" class="text-3xl font-extrabold italic">1.300</h2>
+                <div class="mt-4 bg-red-600 text-[10px] font-bold py-1 px-3 rounded-full inline-flex items-center gap-1 uppercase tracking-widest">
+                    ⚠️ Status: Stok Kritis!
+                </div>
             </div>
         </div>
 
-        <div class="bg-white p-8 rounded-[2rem] card-shadow border border-gray-100 mb-10">
-            <h3 class="text-gray-800 font-bold text-lg mb-6 border-l-4 border-green-500 pl-4 italic">Tren Penjualan Bulanan</h3>
-            <div class="h-64">
-                <canvas id="mainChart"></canvas>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+            <div class="glass-card p-8">
+                <h3 class="text-lg font-bold mb-6 italic border-l-4 border-green-500 pl-3">Grafik Penjualan Bulanan</h3>
+                <canvas id="lineChart"></canvas>
             </div>
-        </div>
-
-        <div class="mb-10">
-            <h3 class="text-gray-800 font-bold text-xl mb-6 text-center italic underline decoration-green-500 decoration-4">Produk Unggulan - Bestseller 2026</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                
-                <div class="bg-white rounded-[2rem] overflow-hidden card-shadow product-card border border-gray-100">
-                    <img src="https://images.unsplash.com/photo-1544413647-ad6717a26f98?q=80&w=800" class="w-full h-48 object-cover" alt="Kapal Pinisi">
-                    <div class="p-6 text-center">
-                        <h4 class="font-bold text-gray-800">Kapal Pinisi & Bambu</h4>
-                        <p class="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">Peringkat 1</p>
+            <div class="glass-card p-8 flex flex-col md:flex-row gap-6">
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold mb-6 italic border-l-4 border-green-500 pl-3">Komposisi Kategori</h3>
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="flex flex-col gap-4 justify-center">
+                    <div class="bg-white text-gray-800 p-4 rounded-xl shadow-lg border-l-8 border-yellow-500">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">🏆 Produk Favorit</p>
+                        <p class="text-sm font-bold">Kapal Pinisi & Rumah Detail</p>
+                    </div>
+                    <div class="bg-white text-gray-800 p-4 rounded-xl shadow-lg border-l-8 border-blue-500">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">📅 Bulan Terpadat</p>
+                        <p class="text-sm font-bold">Juli (450 Unit)</p>
                     </div>
                 </div>
-
-                <div class="bg-white rounded-[2rem] overflow-hidden card-shadow product-card border border-gray-100">
-                    <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=800" class="w-full h-48 object-cover" alt="Rumah Tradisional">
-                    <div class="p-6 text-center">
-                        <h4 class="font-bold text-gray-800">Rumah Tradisional</h4>
-                        <p class="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">Peringkat 2</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-[2rem] overflow-hidden card-shadow product-card border border-gray-100">
-                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800" class="w-full h-48 object-cover" alt="Mobil Klasik">
-                    <div class="p-6 text-center">
-                        <h4 class="font-bold text-gray-800">Mobil Klasik Bambu</h4>
-                        <p class="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">Peringkat 3</p>
-                    </div>
-                </div>
-
             </div>
         </div>
-    </main>
+
+        <h3 class="text-xl font-bold mb-6 italic text-center underline decoration-green-500">Produk Unggulan - Bestseller 2026</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white text-gray-800 rounded-[2rem] overflow-hidden shadow-2xl">
+                <img src="https://images.unsplash.com/photo-1544413647-ad6717a26f98?q=80&w=800" class="h-48 w-full object-cover">
+                <div class="p-6 text-center">
+                    <h4 class="font-bold text-lg">Kapal Pinisi & Kapal Bambu</h4>
+                    <p class="text-xs text-gray-400 font-bold uppercase mt-1">Peringkat 1</p>
+                </div>
+            </div>
+            <div class="bg-white text-gray-800 rounded-[2rem] overflow-hidden shadow-2xl">
+                <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=800" class="h-48 w-full object-cover">
+                <div class="p-6 text-center">
+                    <h4 class="font-bold text-lg">Rumah Tradisional & Detail</h4>
+                    <p class="text-xs text-gray-400 font-bold uppercase mt-1">Peringkat 2</p>
+                </div>
+            </div>
+            <div class="bg-white text-gray-800 rounded-[2rem] overflow-hidden shadow-2xl">
+                <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800" class="h-48 w-full object-cover">
+                <div class="p-6 text-center">
+                    <h4 class="font-bold text-lg">Mobil Bambu & Klasik</h4>
+                    <p class="text-xs text-gray-400 font-bold uppercase mt-1">Peringkat 3</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
@@ -110,65 +132,50 @@
         }
 
         function updateDashboard(row) {
-            const soldTotal = parseInt(row[18]) || 0;
-            const stockTotal = parseInt(row[19]) || 0;
-            const revenueTotal = row[20] || "0";
+            document.getElementById('displaySold').innerText = row[18];
+            document.getElementById('displayStock').innerText = row[19];
+            document.getElementById('displayRev').innerText = "Rp " + row[20];
 
-            document.getElementById('displaySold').innerText = soldTotal.toLocaleString('id-ID');
-            document.getElementById('displayStock').innerText = stockTotal.toLocaleString('id-ID');
-            document.getElementById('displayRev').innerText = "Rp " + revenueTotal;
-            document.getElementById('status').innerText = "✅ Data Sinkron Secara Otomatis";
-
-            // Progress Bar & Alert
-            const totalInventory = soldTotal + stockTotal;
-            const pct = (soldTotal / totalInventory) * 100;
-            document.getElementById('soldProgress').style.width = pct + "%";
-
-            const alertEl = document.getElementById('stockAlert');
-            if(stockTotal < 500) {
-                alertEl.innerText = "🚨 Status: Stok Kritis!";
-                alertEl.className = "text-[10px] font-bold mt-2 uppercase text-red-600 animate-pulse";
-            }
-
-            // Data Bulanan
-            const monthlyValues = [];
+            const monthlyData = [];
             for (let i = 4; i <= 15; i++) {
-                let val = row[i] ? row[i].toString().replace(/\D/g, '') : "0";
-                monthlyValues.push(parseInt(val) || 0);
+                monthlyData.push(parseInt(row[i].toString().replace(/\D/g, '')) || 0);
             }
-            renderChart(monthlyValues);
+            renderLineChart(monthlyData);
+            renderPieChart();
         }
 
-        let myChart;
-        function renderChart(data) {
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
+        function renderLineChart(data) {
+            new Chart(document.getElementById('lineChart'), {
                 type: 'line',
                 data: {
-                    labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+                    labels: ['2026','2020','2020','2028','2026'],
                     datasets: [{
-                        label: 'Unit Keluar',
                         data: data,
-                        borderColor: '#22c55e',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 4,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#fff'
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        fill: true, tension: 0.4, borderWidth: 4, pointRadius: 0
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
+                options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } } } }
+            });
+        }
+
+        function renderPieChart() {
+            new Chart(document.getElementById('pieChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Kapal', 'Rumah', 'Mobil', 'Lainnya'],
+                    datasets: [{
+                        data: [40, 35, 25, 10],
+                        backgroundColor: ['#2e7d32', '#81c784', '#a5d6a7', '#ff8a65'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { plugins: { legend: { display: false } }, cutout: '70%' }
             });
         }
 
         init();
-        setInterval(init, 300000); // Sinkron tiap 5 menit
     </script>
 </body>
 </html>
