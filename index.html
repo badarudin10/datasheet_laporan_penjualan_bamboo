@@ -2,136 +2,90 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Otomatis BambooArt</title>
+    <title>Dashboard BambooArt 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f4f7f4; }
-        .sidebar-bamboo { background: #162b16; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
-        @media print { .no-print { display: none; } }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex flex-col md:flex-row min-h-screen">
-
-    <aside class="w-full md:w-72 sidebar-bamboo text-white p-6 no-print shadow-2xl">
-        <div class="mb-10 text-center">
-            <h1 class="text-2xl font-bold text-green-400 italic">BambooArt 2026</h1>
-            <p class="text-xs text-stone-400">Live Syncing System</p>
+<body class="bg-stone-50 p-6">
+    <div class="max-w-6xl mx-auto">
+        <div id="status-bar" class="mb-4 text-xs font-bold text-center p-2 bg-yellow-100 text-yellow-700 rounded">
+            Sedang Memuat Data Dari Google Sheets...
         </div>
-        
-        <div class="space-y-6">
-            <button onclick="window.print()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
-                <span>🖨️ Cetak PDF</span>
-            </button>
-            <div class="p-4 bg-stone-800/50 rounded-xl border border-stone-700">
-                <p class="text-xs text-stone-400 uppercase tracking-widest">Status Data:</p>
-                <p id="status" class="text-sm font-bold text-yellow-400">Menghubungkan...</p>
-            </div>
-        </div>
-    </aside>
 
-    <main class="flex-1 p-6 md:p-10">
-        <header class="flex justify-between items-start mb-10 border-b pb-6">
-            <div>
-                <h2 class="text-3xl font-bold text-stone-800">Laporan Penjualan Real-Time</h2>
-                <p class="text-stone-500">Menampilkan data langsung dari Google Sheets</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-green-600">
+                <p class="text-gray-500 text-sm">Total Pendapatan</p>
+                <h2 id="displayRev" class="text-3xl font-bold text-stone-800">Rp 0</h2>
             </div>
-            <div class="text-right">
-                <p id="totalRev" class="text-3xl font-extrabold text-green-700">Rp 0</p>
-                <p class="text-xs text-stone-400 uppercase">Total Omzet Tahunan</p>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-green-500">
-                <p class="text-stone-400 text-sm">Total Unit Keluar</p>
-                <p id="totalSold" class="text-3xl font-bold text-stone-800">0</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-orange-500">
-                <p class="text-stone-400 text-sm">Produk Terlaris</p>
-                <p id="topProduct" class="text-xl font-bold text-stone-800">-</p>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-blue-500">
-                <p class="text-stone-400 text-sm">Update Terakhir</p>
-                <p id="lastUpdate" class="text-lg font-bold text-stone-800">-</p>
+            <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-blue-600">
+                <p class="text-gray-500 text-sm">Total Barang Keluar</p>
+                <h2 id="displaySold" class="text-3xl font-bold text-stone-800">0 Unit</h2>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 mb-10">
-            <h3 class="font-bold text-stone-700 mb-4 text-center uppercase tracking-widest text-xs">Grafik Tren Penjualan Bulanan</h3>
-            <canvas id="syncChart" height="100"></canvas>
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+            <canvas id="myChart" height="120"></canvas>
         </div>
-    </main>
+    </div>
 
     <script>
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?gid=0&single=true&output=csv";
 
-        function fetchData() {
+        function init() {
             Papa.parse(sheetUrl, {
                 download: true,
                 header: true,
+                skipEmptyLines: true,
                 complete: function(results) {
-                    processData(results.data);
-                },
-                error: function() {
-                    document.getElementById('status').innerText = "Gagal memuat data!";
+                    const rows = results.data;
+                    // Mencari baris yang mengandung kata 'TOTAL'
+                    const totalRow = rows.find(r => 
+                        Object.values(r).some(val => val && val.toString().toUpperCase().includes('TOTAL'))
+                    );
+
+                    if (totalRow) {
+                        updateUI(totalRow);
+                        document.getElementById('status-bar').className = "mb-4 text-xs font-bold text-center p-2 bg-green-100 text-green-700 rounded";
+                        document.getElementById('status-bar').innerText = "✅ Data Berhasil Disinkronkan";
+                    } else {
+                        document.getElementById('status-bar').innerText = "⚠️ Baris 'TOTAL' tidak ditemukan di Sheets";
+                    }
                 }
             });
         }
 
-        function processData(data) {
-            // Mengambil baris TOTAL (baris terakhir)
-            const summary = data.find(row => row['Nama Produk'] === 'TOTAL');
+        function updateUI(row) {
+            // Kita ambil data berdasarkan posisi kolom jika nama kolom berubah
+            const values = Object.values(row);
             
-            // Mengupdate angka-angka utama
-            document.getElementById('totalRev').innerText = "Rp " + summary['Total Harga Terjual'];
-            document.getElementById('totalSold').innerText = summary['Total Barang Keluar Pertahun'];
-            document.getElementById('status').innerText = "✅ Terhubung";
-            document.getElementById('status').classList.replace('text-yellow-400', 'text-green-400');
-            document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString('id-ID');
+            // Total Harga biasanya ada di kolom terakhir atau dekat situ
+            document.getElementById('displayRev').innerText = "Rp " + (row['Total Harga Terjual'] || values[values.length - 1]);
+            document.getElementById('displaySold').innerText = (row['Total Barang Keluar Pertahun'] || values[values.length - 3]) + " Unit";
 
-            // Data untuk Grafik (Baris TOTAL per bulan)
-            const monthlyData = [
-                parseInt(summary['Januari Keluar']), parseInt(summary['Februari Keluar']),
-                parseInt(summary['Maret Keluar']), parseInt(summary['April Keluar']),
-                parseInt(summary['Mei Keluar']), parseInt(summary['Juni Keluar']),
-                parseInt(summary['Juli Keluar']), parseInt(summary['Agustus Keluar']),
-                parseInt(summary['September Keluar']), parseInt(summary['Oktober Keluar']),
-                parseInt(summary['November Keluar']), parseInt(summary['Desember Keluar'])
-            ];
-
-            // Menentukan Produk Terlaris (Manual dari data tertinggi)
-            document.getElementById('topProduct').innerText = "Kapal Pinisi & Rumah Detail";
-
+            // Ambil data bulanan (asumsi kolom Keluar ada di index 4 sampai 15)
+            const monthlyData = values.slice(4, 16).map(v => parseInt(v.toString().replace(/\D/g,'')) || 0);
             renderChart(monthlyData);
         }
 
         let chart;
-        function renderChart(monthlyData) {
-            const ctx = document.getElementById('syncChart').getContext('2d');
+        function renderChart(data) {
+            const ctx = document.getElementById('myChart').getContext('2d');
             if(chart) chart.destroy();
             chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
                     datasets: [{
-                        label: 'Unit Keluar',
-                        data: monthlyData,
-                        backgroundColor: '#22c55e',
-                        borderRadius: 5
+                        label: 'Penjualan Per Bulan',
+                        data: data,
+                        backgroundColor: '#166534'
                     }]
-                },
-                options: { plugins: { legend: { display: false } } }
+                }
             });
         }
 
-        // Jalankan saat load
-        fetchData();
-        // Auto refresh setiap 5 menit (300000 ms)
-        setInterval(fetchData, 300000);
+        init();
     </script>
 </body>
 </html>
