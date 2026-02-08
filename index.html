@@ -2,35 +2,51 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard BambooArt 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f3f4f6; }
+        .bamboo-gradient { background: linear-gradient(135deg, #166534 0%, #064e3b 100%); }
+    </style>
 </head>
-<body class="bg-stone-100 p-4 md:p-8">
-    <div class="max-w-5xl mx-auto">
-        <header class="mb-6 flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-600">
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="bamboo-gradient p-8 rounded-3xl shadow-xl mb-8 text-white flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-stone-800">📊 Penjualan BambooArt</h1>
-                <p id="status-text" class="text-xs text-orange-500 font-bold">Menghubungkan ke Sheets...</p>
+                <h1 class="text-3xl font-bold">📊 Dashboard Penjualan BambooArt</h1>
+                <p id="status" class="text-green-300 text-sm font-semibold mt-1 italic">🔄 Menghubungkan ke server...</p>
             </div>
-            <button onclick="window.print()" class="bg-stone-800 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-black transition">Cetak Laporan</button>
+            <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/20">
+                <p class="text-xs uppercase opacity-70">Total Omzet 2026</p>
+                <p id="displayRev" class="text-2xl font-black text-white">Rp 0</p>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm">
-                <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Total Pendapatan</p>
-                <h2 id="displayRev" class="text-3xl font-black text-green-700">Rp 0</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500">
+                <p class="text-gray-400 text-xs font-bold uppercase">Total Unit Terjual</p>
+                <p id="displaySold" class="text-3xl font-bold text-gray-800">0</p>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm">
-                <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Total Unit Terjual</p>
-                <h2 id="displaySold" class="text-3xl font-black text-stone-800">0</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-orange-500">
+                <p class="text-gray-400 text-xs font-bold uppercase">Sisa Stok</p>
+                <p id="displayStock" class="text-3xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-500">
+                <button onclick="window.print()" class="w-full h-full text-blue-600 font-bold hover:bg-blue-50 transition uppercase text-sm">🖨️ Cetak Laporan PDF</button>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
-            <h3 class="text-center text-xs font-bold text-stone-400 uppercase mb-4">Grafik Penjualan Bulanan (Unit)</h3>
-            <canvas id="myChart" height="120"></canvas>
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+            <h3 class="text-gray-700 font-bold mb-6 flex items-center gap-2">
+                📈 Tren Penjualan Bulanan
+            </h3>
+            <div style="position: relative; height:300px; width:100%">
+                <canvas id="mainChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -40,67 +56,72 @@
         function init() {
             Papa.parse(sheetUrl, {
                 download: true,
-                header: false, // Kita set false dulu karena data Akang punya baris kosong di atas
+                header: false,
                 skipEmptyLines: true,
                 complete: function(results) {
                     const rows = results.data;
-                    // Cari baris yang berisi kata "TOTAL"
+                    // Mencari baris yang mengandung kata 'TOTAL'
                     const totalRow = rows.find(r => r.some(cell => cell && cell.toString().toUpperCase() === 'TOTAL'));
 
                     if (totalRow) {
-                        updateUI(totalRow);
-                        document.getElementById('status-text').innerText = "✅ DATA SINKRON";
-                        document.getElementById('status-text').className = "text-xs text-green-600 font-bold";
+                        updateDashboard(totalRow);
+                        document.getElementById('status').innerText = "✅ Data Terhubung Otomatis";
                     } else {
-                        document.getElementById('status-text').innerText = "⚠️ Baris 'TOTAL' tidak terbaca";
+                        document.getElementById('status').innerText = "⚠️ Error: Baris 'TOTAL' Tidak Ditemukan";
+                        document.getElementById('status').classList.replace('text-green-300', 'text-red-400');
                     }
+                },
+                error: function() {
+                    document.getElementById('status').innerText = "❌ Gagal Mengambil Data";
                 }
             });
         }
 
-        function updateUI(row) {
-            // Berdasarkan struktur data Akang:
-            // Kolom index 18 = Total Keluar Pertahun
-            // Kolom index 20 = Total Harga Terjual
-            const totalSold = row[18] || "0";
-            const totalRev = row[20] || "0";
-            
-            // Ambil data bulanan (Januari di index 4 sampai Desember di index 15)
-            const monthlyData = [];
-            for(let i=4; i<=15; i++) {
-                let val = row[i] ? row[i].toString().replace(/\D/g,'') : "0";
-                monthlyData.push(parseInt(val) || 0);
+        function updateDashboard(row) {
+            // Mapping data berdasarkan struktur CSV
+            // Kolom index 18: Total Barang Keluar, Index 19: Stok Akhir, Index 20: Total Harga
+            document.getElementById('displaySold').innerText = row[18] || "0";
+            document.getElementById('displayStock').innerText = row[19] || "0";
+            document.getElementById('displayRev').innerText = "Rp " + (row[20] || "0");
+
+            // Ambil data bulanan (Kolom 4 sampai 15: Januari - Desember)
+            const monthlyValues = [];
+            for (let i = 4; i <= 15; i++) {
+                let val = row[i] ? row[i].toString().replace(/\D/g, '') : "0";
+                monthlyValues.push(parseInt(val) || 0);
             }
 
-            document.getElementById('displayRev').innerText = "Rp " + totalRev;
-            document.getElementById('displaySold').innerText = totalSold + " Unit";
-            
-            renderChart(monthlyData);
+            renderChart(monthlyValues);
         }
 
-        let chart;
+        let myChart;
         function renderChart(data) {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            if(chart) chart.destroy();
-            chart = new Chart(ctx, {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
                     datasets: [{
-                        label: 'Unit',
+                        label: 'Unit Terjual',
                         data: data,
-                        backgroundColor: '#15803d',
-                        borderRadius: 6
+                        backgroundColor: '#16a34a',
+                        borderRadius: 10,
+                        barThickness: 25
                     }]
                 },
-                options: { 
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
+                    scales: { y: { beginAtZero: true, grid: { display: false } } }
                 }
             });
         }
 
         init();
+        // Cek update tiap 10 menit
+        setInterval(init, 600000);
     </script>
 </body>
 </html>
