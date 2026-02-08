@@ -21,11 +21,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1.5rem;
         }
-        .stat-card-green { background: #4caf50; color: white; }
-        .stat-card-blue { background: #5da9e9; color: white; }
-        .stat-card-orange { background: #f48c42; color: white; }
-        th { background: rgba(255,255,255,0.1); color: #4caf50; }
-        td { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stat-card-green { background: #4caf50; }
+        .stat-card-blue { background: #5da9e9; }
+        .stat-card-orange { background: #f48c42; }
     </style>
 </head>
 <body class="p-4 md:p-8 pb-20">
@@ -36,65 +34,47 @@
                 <div class="bg-green-500 p-2 rounded-lg font-bold text-white shadow-lg">BA</div>
                 <h1 class="text-2xl font-bold tracking-tight">BambooArt Dashboard</h1>
             </div>
-            <div class="flex gap-3">
-                <button onclick="window.print()" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-bold text-sm shadow-lg">Cetak PDF</button>
-                <div class="bg-black/30 border border-white/20 px-4 py-2 rounded-lg text-sm font-bold">✅ Auto-Sync Aktif</div>
+            <div class="bg-black/30 border border-white/20 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest">
+                ✅ Live Sync 2026
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-white">
             <div class="stat-card-green p-8 rounded-[2rem] shadow-xl">
-                <p class="text-xs font-bold uppercase opacity-80 mb-2">Total Omzet 2026</p>
+                <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Omzet</p>
                 <h2 id="displayRev" class="text-3xl font-extrabold tracking-tighter">Rp 0</h2>
             </div>
-            <div class="stat-card-blue p-8 rounded-[2rem] shadow-xl">
-                <p class="text-xs font-bold uppercase opacity-80 mb-2">Unit Terjual</p>
-                <h2 id="displaySold" class="text-3xl font-extrabold tracking-tighter">0</h2>
+            <div class="stat-card-blue p-8 rounded-[2rem] shadow-xl text-center">
+                <p class="text-[10px] font-bold uppercase opacity-80 mb-1 text-left text-white/70">Barang Terjual</p>
+                <h2 id="displaySold" class="text-4xl font-black italic">0</h2>
             </div>
             <div class="stat-card-orange p-8 rounded-[2rem] shadow-xl">
-                <p class="text-xs font-bold uppercase opacity-80 mb-2">Total Stok</p>
-                <h2 id="displayStock" class="text-3xl font-extrabold tracking-tighter">0</h2>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-            <div class="glass-card p-8 text-center">
-                <h3 class="text-lg font-bold mb-6 italic text-left border-l-4 border-green-500 pl-3">Tren Penjualan (Unit)</h3>
-                <canvas id="lineChart"></canvas>
-            </div>
-            <div class="glass-card p-8">
-                <h3 class="text-lg font-bold mb-6 italic border-l-4 border-green-500 pl-3">Analisis Cepat</h3>
-                <div class="space-y-4">
-                    <div class="bg-white/10 p-4 rounded-2xl flex justify-between items-center">
-                        <span class="text-sm font-semibold text-gray-300 uppercase tracking-widest text-[10px]">🏆 Favorit</span>
-                        <span class="font-bold text-green-400">Rumah Tradisional</span>
-                    </div>
-                    <div class="bg-white/10 p-4 rounded-2xl flex justify-between items-center">
-                        <span class="text-sm font-semibold text-gray-300 uppercase tracking-widest text-[10px]">📅 Puncak</span>
-                        <span class="font-bold text-blue-400">Juli</span>
-                    </div>
-                    <div class="bg-white/10 p-4 rounded-2xl flex justify-between items-center">
-                        <span class="text-sm font-semibold text-gray-300 uppercase tracking-widest text-[10px]">📦 Status</span>
-                        <span class="font-bold text-orange-400 italic">Restocking Soon</span>
-                    </div>
-                </div>
+                <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Sisa Stok Global</p>
+                <h2 id="displayStock" class="text-3xl font-extrabold tracking-tighter text-white">0</h2>
             </div>
         </div>
 
         <div class="glass-card p-8 mb-10">
-            <h3 class="text-lg font-bold mb-6 italic border-l-4 border-green-500 pl-3">Daftar Detail Stok & Produk</h3>
+            <h3 class="text-lg font-bold mb-6 italic border-l-4 border-green-500 pl-3">Tren Penjualan Bulanan (Unit)</h3>
+            <div class="h-64">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 md:p-8 overflow-hidden">
+            <h3 class="text-lg font-bold mb-6 italic border-l-4 border-green-500 pl-3 uppercase tracking-wider text-green-400">Inventory Detail</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead>
+                    <thead class="bg-white/5 text-green-500">
                         <tr>
-                            <th class="p-4 rounded-l-xl uppercase text-[10px] tracking-widest">Nama Produk</th>
-                            <th class="p-4 uppercase text-[10px] tracking-widest">Terjual (Unit)</th>
-                            <th class="p-4 uppercase text-[10px] tracking-widest">Sisa Stok</th>
-                            <th class="p-4 rounded-r-xl uppercase text-[10px] tracking-widest">Status</th>
+                            <th class="p-4 uppercase text-[10px] font-black">Produk</th>
+                            <th class="p-4 uppercase text-[10px] font-black">Terjual</th>
+                            <th class="p-4 uppercase text-[10px] font-black text-center">Stok</th>
+                            <th class="p-4 uppercase text-[10px] font-black text-right">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="productTableBody">
-                        <tr><td colspan="4" class="p-4 text-center opacity-50">Mengolah data...</td></tr>
+                    <tbody id="productTableBody" class="divide-y divide-white/5">
+                        <tr><td colspan="4" class="p-10 text-center opacity-40 italic">Menarik data dari Google Sheets...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -109,6 +89,7 @@
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
                     const rows = results.data;
+                    // Cari baris TOTAL
                     const totalRow = rows.find(r => r.some(cell => cell && cell.toString().toUpperCase() === 'TOTAL'));
                     
                     if (totalRow) {
@@ -135,44 +116,66 @@
             const tableBody = document.getElementById('productTableBody');
             tableBody.innerHTML = '';
             
-            // Mengambil data produk (biasanya baris 3 sampai sebelum total)
-            // Sesuaikan filter ini jika urutan baris di Sheets berubah
-            const products = allRows.filter((r, index) => index > 1 && r[2] && r[2] !== "TOTAL");
+            // Filter: Hanya ambil baris yang punya nama produk di kolom index 2 
+            // DAN kolom index 18 (Unit Keluar) harus berisi angka
+            const products = allRows.filter(r => {
+                const hasName = r[2] && r[2].length > 3 && r[2] !== "Nama Barang";
+                const isNotTotal = r[2] && r[2].toUpperCase() !== "TOTAL";
+                const hasValue = !isNaN(parseInt(r[18]));
+                return hasName && isNotTotal && hasValue;
+            });
+
+            if(products.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">Data produk belum terdeteksi</td></tr>';
+                return;
+            }
 
             products.forEach(p => {
-                const sold = parseInt(p[18]) || 0;
+                const name = p[2];
+                const sold = p[18] || "0";
                 const stock = parseInt(p[19]) || 0;
-                const status = stock < 10 ? '🔴 KRITIS' : '🟢 AMAN';
-                const rowClass = stock < 10 ? 'bg-red-500/10' : '';
+                
+                let statusBadge = stock < 10 
+                    ? '<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-1 rounded border border-red-500/50 italic font-bold">RE-STOCK!</span>' 
+                    : '<span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/50 font-bold">TERSEDIA</span>';
 
                 tableBody.innerHTML += `
-                    <tr class="${rowClass}">
-                        <td class="p-4 font-bold">${p[2]}</td>
-                        <td class="p-4 font-mono">${sold}</td>
-                        <td class="p-4 font-mono ${stock < 10 ? 'text-red-400 font-black' : ''}">${stock}</td>
-                        <td class="p-4 text-[10px] font-bold">${status}</td>
+                    <tr class="hover:bg-white/5 transition">
+                        <td class="p-4 font-semibold text-gray-200">${name}</td>
+                        <td class="p-4 font-mono text-blue-300">${sold}</td>
+                        <td class="p-4 font-mono text-center ${stock < 10 ? 'text-red-400 font-black' : 'text-gray-300'}">${stock}</td>
+                        <td class="p-4 text-right">${statusBadge}</td>
                     </tr>
                 `;
             });
         }
 
+        let myChart;
         function renderChart(data) {
             const ctx = document.getElementById('lineChart');
-            new Chart(ctx, {
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
                     datasets: [{
                         data: data, borderColor: '#4caf50', tension: 0.4, fill: true,
-                        backgroundColor: 'rgba(76, 175, 80, 0.1)', borderWidth: 3, pointRadius: 4
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#4caf50'
                     }]
                 },
-                options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: 'rgba(255,255,255,0.5)' } } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        y: { display: false }, 
+                        x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { display: false } } 
+                    } 
+                }
             });
         }
 
         init();
-        setInterval(init, 300000); // Update otomatis tiap 5 menit
+        setInterval(init, 300000);
     </script>
 </body>
 </html>
