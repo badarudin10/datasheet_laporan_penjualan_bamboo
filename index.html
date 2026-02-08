@@ -96,52 +96,7 @@
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
 
-        function syncData(// Sesuaikan nomor di dalam kurung [ ] dengan urutan kolom baru
-document.getElementById('displaySold').innerText = totalRow[18] || "0";  // Kolom S (Total Keluar)
-document.getElementById('displayStock').innerText = totalRow[17] || "0"; // Kolom R (Stock Akhir)
-document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0"); // Kolom U (Total Harga) {
-            Papa.parse(sheetUrl, {
-                download: true,
-                complete: function(results) {
-                    const data = results.data;
-                    const totalRow = data.find(r => r.join('').toUpperCase().includes("TOTAL"));
-                    
-                    if (totalRow) {
-                        // Kolom Terjual (18), Stok (19), Omzet (20)
-                        document.getElementById('displaySold').innerText = totalRow[18] || "0";
-                        document.getElementById('displayStock').innerText = totalRow[19] || "0";
-                        document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0");
-
-                        // Data Bulanan (Kolom 4 sampai 15)
-                        const monthlyValues = [];
-                        for(let i=4; i<=15; i++) {
-                            let val = totalRow[i] ? totalRow[i].toString().replace(/\D/g, '') : "0";
-                            monthlyValues.push(parseInt(val) || 0);
-                        }
-                        renderChart(monthlyValues);
-                    }
-
-                    const tbody = document.getElementById('inventoryBody');
-                    tbody.innerHTML = '';
-                    data.forEach((row, i) => {
-                        if (i > 2 && row[2] && !row[2].toUpperCase().includes("TOTAL") && row[2].trim() !== "") {
-                            const s = parseInt(row[19]) || 0;
-                            tbody.innerHTML += `
-                                <tr class="hover:bg-white/5 transition">
-                                    <td class="p-4 font-bold text-white">${row[2]}</td>
-                                    <td class="p-4 text-center font-mono text-blue-300">${row[18] || 0}</td>
-                                    <td class="p-4 text-center font-mono">${s}</td>
-                                    <td class="p-4 text-right">
-                                        <span class="px-2 py-1 rounded text-[9px] font-black ${s < 10 ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}">
-                                            ${s < 10 ? 'RE-STOCK' : 'AMAN'}
-                                        </span>
-                                    </td>
-                                </tr>`;
-                        }
-                    });
-                }
-            });
-        }
+        
 
         let myChart;
         function renderChart(vals) {
@@ -171,8 +126,58 @@ document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0");
                 }
             });
         }
+function syncData() {
+            Papa.parse(sheetUrl, {
+                download: true,
+                complete: function(results) {
+                    const data = results.data;
+                    
+                    // Mencari baris yang mengandung kata "TOTAL"
+                    const totalRow = data.find(r => r.join('').toUpperCase().includes("TOTAL"));
+                    
+                    if (totalRow) {
+                        // PENYESUAIAN SESUAI KOLOM BARU AKANG:
+                        // Index 18 = Kolom S (Total Keluar)
+                        // Index 17 = Kolom R (Stock Akhir)
+                        // Index 20 = Kolom U (Total Harga)
+                        
+                        document.getElementById('displaySold').innerText = totalRow[18] || "0";
+                        document.getElementById('displayStock').innerText = totalRow[17] || "0";
+                        document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0");
 
-        syncData();
+                        // Grafik Bulanan (E-P / Index 4-15)
+                        const monthlyValues = [];
+                        for(let i=4; i<=15; i++) {
+                            let val = totalRow[i] ? totalRow[i].toString().replace(/\D/g, '') : "0";
+                            monthlyValues.push(parseInt(val) || 0);
+                        }
+                        renderChart(monthlyValues);
+                    }
+
+                    // ISI TABEL DETAIL
+                    const tbody = document.getElementById('inventoryBody');
+                    tbody.innerHTML = '';
+                    data.forEach((row, i) => {
+                        if (i > 2 && row[2] && !row[2].toUpperCase().includes("TOTAL") && row[2].trim() !== "") {
+                            const stok = parseInt(row[17]) || 0; // Kolom R
+                            const terjual = row[18] || "0";    // Kolom S
+                            
+                            tbody.innerHTML += `
+                                <tr class="hover:bg-white/5 transition border-b border-white/5 text-gray-300">
+                                    <td class="p-4 font-bold text-white">${row[2]}</td>
+                                    <td class="p-4 text-center font-mono text-blue-300 font-bold">${terjual}</td>
+                                    <td class="p-4 text-center font-mono">${stok}</td>
+                                    <td class="p-4 text-right">
+                                        <span class="px-2 py-1 rounded text-[9px] font-black ${stok < 10 ? 'bg-red-500/20 text-red-400 border border-red-500/50' : 'bg-green-500/20 text-green-400 border border-green-500/50'}">
+                                            ${stok < 10 ? 'RE-STOCK' : 'AMAN'}
+                                        </span>
+                                    </td>
+                                </tr>`;
+                        }
+                    });
+                }
+            });
+        }        syncData();
         setInterval(syncData, 300000);
     </script>
 </body>
