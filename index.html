@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Penjualan Bamboo 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f7f9f7; }
+        .bamboo-sidebar { background: #1a2e1a; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
+        
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .print-area { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .card-stat { border: 1px solid #ccc !important; shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <aside class="w-full md:w-72 bamboo-sidebar text-white p-6 shadow-2xl no-print">
+        <div class="mb-10 text-center">
+            <h1 class="text-2xl font-bold text-green-400">BambooArt 2026</h1>
+            <p class="text-xs text-stone-400">Digital Report System</p>
+        </div>
+        
+        <div class="space-y-6">
+            <div>
+                <label class="text-xs uppercase text-stone-500 font-bold tracking-widest">Pilih Kategori</label>
+                <select id="categoryFilter" onchange="updateDashboard()" class="w-full mt-2 bg-stone-800 border border-stone-700 text-white rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="all">Semua Produk</option>
+                    <option value="Kapal">Kapal Pinisi</option>
+                    <option value="Mobil">Mobil Bamboo</option>
+                    <option value="Motor">Motor Bamboo</option>
+                    <option value="Rumah">Rumah Tradisional</option>
+                    <option value="Lampion">Lampion</option>
+                </select>
+            </div>
+
+            <button onclick="window.print()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-lg flex items-center justify-center gap-2">
+                <span>🖨️ Cetak Laporan PDF</span>
+            </button>
+        </div>
+
+        <div class="mt-10 p-4 bg-stone-800/50 rounded-xl border border-stone-700">
+            <p class="text-xs text-stone-400">Estimasi Pendapatan:</p>
+            <p id="filteredRevenue" class="text-xl font-bold text-green-400 mt-1">Rp 172.475.000</p>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-6 md:p-10 overflow-y-auto print-area">
+        <div class="max-w-6xl mx-auto">
+            <header class="mb-8 border-b pb-4 border-stone-200">
+                <h2 id="dashboardTitle" class="text-3xl font-bold text-stone-800">Laporan Penjualan Tahunan 2026</h2>
+                <p class="text-stone-500">Dicetak pada: <span id="currentDate"></span></p>
+            </header>
+
+            <div class="grid grid-cols-3 gap-6 mb-8 text-center">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500 card-stat">
+                    <p class="text-stone-400 text-xs uppercase">Total Terjual</p>
+                    <p id="statSold" class="text-3xl font-bold text-stone-800">2.420</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-yellow-500 card-stat">
+                    <p class="text-stone-400 text-xs uppercase">Sisa Stok</p>
+                    <p id="statStock" class="text-3xl font-bold text-stone-800">1.300</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-500 card-stat">
+                    <p class="text-stone-400 text-xs uppercase">Efektivitas</p>
+                    <p id="statPct" class="text-3xl font-bold text-stone-800">67%</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 mb-8">
+                <h3 class="font-bold text-stone-700 mb-4 text-center uppercase tracking-widest text-sm">Grafik Arus Keluar Barang (Unit)</h3>
+                <canvas id="mainChart" height="100"></canvas>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead class="bg-stone-800 text-white">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Nama Produk</th>
+                            <th class="px-4 py-3 text-center">Harga Satuan</th>
+                            <th class="px-4 py-3 text-center">Terjual</th>
+                            <th class="px-4 py-3 text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody" class="divide-y divide-stone-100">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const products = [
+            { cat: "Kapal", name: "Kapal Pinisi Bamboo Mini", price: 50000, sold: 135, total: "6.750.000" },
+            { cat: "Kapal", name: "Kapal Pinisi Bamboo Besar", price: 100000, sold: 130, total: "13.000.000" },
+            { cat: "Kapal", name: "Kapal Pinisi Bamboo Detail Mini", price: 100000, sold: 130, total: "13.000.000" },
+            { cat: "Kapal", name: "Kapal Pinisi Bamboo Detail Besar", price: 200000, sold: 135, total: "27.000.000" },
+            { cat: "Mobil", name: "Mobil Bamboo Mini", price: 30000, sold: 135, total: "4.050.000" },
+            { cat: "Mobil", name: "Mobil Bamboo Besar", price: 50000, sold: 135, total: "6.750.000" },
+            { cat: "Rumah", name: "Rumah Tradisional Besar Detail", price: 200000, sold: 135, total: "27.000.000" },
+            // ... (Data lainnya bisa ditambahkan sesuai kebutuhan)
+        ];
+
+        const rawData = {
+            all: { revenue: "172.475.000", sold: 2420, stock: 1300, pct: "67%", trend: [120, 180, 90, 270, 345, 185, 450, 90, 90, 180, 270, 180] },
+            Kapal: { revenue: "59.750.000", sold: 530, stock: 270, pct: "66%", trend: [40, 30, 15, 50, 60, 40, 90, 15, 20, 30, 40, 15] },
+            Mobil: { revenue: "31.350.000", sold: 540, stock: 280, pct: "65%", trend: [20, 40, 20, 60, 80, 40, 100, 20, 20, 40, 60, 20] },
+            Motor: { revenue: "15.525.000", sold: 540, stock: 280, pct: "65%", trend: [20, 40, 20, 60, 80, 40, 100, 20, 20, 40, 60, 20] },
+            Rumah: { revenue: "60.750.000", sold: 540, stock: 280, pct: "65%", trend: [20, 40, 20, 60, 80, 40, 100, 20, 20, 40, 60, 20] },
+            Lampion: { revenue: "5.400.000", sold: 270, stock: 140, pct: "65%", trend: [10, 20, 10, 30, 35, 20, 50, 10, 5, 20, 40, 20] }
+        };
+
+        let chart;
+        const ctx = document.getElementById('mainChart').getContext('2d');
+
+        function updateDashboard() {
+            const cat = document.getElementById('categoryFilter').value;
+            const data = rawData[cat];
+            
+            // Update Stats
+            document.getElementById('filteredRevenue').innerText = "Rp " + data.revenue;
+            document.getElementById('statSold').innerText = data.sold;
+            document.getElementById('statStock').innerText = data.stock;
+            document.getElementById('statPct').innerText = data.pct;
+            
+            // Update Table
+            const tableBody = document.getElementById('productTableBody');
+            tableBody.innerHTML = '';
+            products.filter(p => cat === 'all' || p.cat === cat).forEach(p => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="px-4 py-3">${p.name}</td>
+                        <td class="px-4 py-3 text-center">Rp ${p.price.toLocaleString()}</td>
+                        <td class="px-4 py-3 text-center">${p.sold}</td>
+                        <td class="px-4 py-3 text-right font-bold">Rp ${p.total}</td>
+                    </tr>
+                `;
+            });
+
+            // Update Chart
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+                    datasets: [{ label: 'Unit Keluar', data: data.trend, backgroundColor: '#22c55e' }]
+                },
+                options: { plugins: { legend: { display: false } } }
+            });
+        }
+
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('id-ID', { dateStyle: 'long' });
+        updateDashboard();
+    </script>
+</body>
+</html>
