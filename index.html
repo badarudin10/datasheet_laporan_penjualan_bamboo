@@ -96,7 +96,10 @@
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
 
-        function syncData() {
+        function syncData(// Sesuaikan nomor di dalam kurung [ ] dengan urutan kolom baru
+document.getElementById('displaySold').innerText = totalRow[18] || "0";  // Kolom S (Total Keluar)
+document.getElementById('displayStock').innerText = totalRow[17] || "0"; // Kolom R (Stock Akhir)
+document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0"); // Kolom U (Total Harga) {
             Papa.parse(sheetUrl, {
                 download: true,
                 complete: function(results) {
