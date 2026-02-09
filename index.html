@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooArt All-in-One Dashboard</title>
+    <title>BambooArt Pro Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,51 +11,76 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f1711; color: white; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
         .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
+        
+        /* CSS KHUSUS PRINT */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; background-image: none !important; }
+            .glass-card { border: 1px solid #eee; background: white !important; color: black !important; box-shadow: none !important; }
+            .text-white, .text-green-400, .text-sky-400 { color: black !important; }
+            canvas { max-height: 250px !important; }
+        }
     </style>
 </head>
 <body class="p-4 pb-32">
 
     <div class="max-w-2xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex justify-between items-center mb-8 no-print">
             <div class="flex items-center gap-3">
-                <div class="bg-green-600 p-2 rounded-lg font-bold">BA</div>
-                <h1 class="text-xl font-bold tracking-tight text-white uppercase italic">BambooArt Dashboard</h1>
+                <div class="bg-green-600 p-2 rounded-lg font-bold shadow-lg shadow-green-900/40">BA</div>
+                <h1 class="text-xl font-bold tracking-tight text-white uppercase italic">BambooArt Pro</h1>
             </div>
-            <button onclick="location.reload()" class="bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold">🔄 REFRESH</button>
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="bg-white/10 p-2 rounded-xl text-[10px] font-bold border border-white/20">📄 PRINT</button>
+                <button onclick="location.reload()" class="bg-green-600 p-2 rounded-xl text-[10px] font-bold shadow-lg">🔄 REFRESH</button>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 gap-4 mb-6">
-            <div class="bg-green-600 p-6 rounded-3xl shadow-lg">
+            <div class="bg-green-600 p-6 rounded-3xl shadow-xl">
                 <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Omzet Tahunan</p>
-                <h2 id="displayRev" class="text-2xl font-black italic">Memuat...</h2>
+                <h2 id="displayRev" class="text-3xl font-black italic">Memuat...</h2>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-sky-500 p-5 rounded-3xl shadow-lg">
-                    <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Terjual</p>
+                    <p class="text-[10px] font-bold uppercase opacity-80 mb-1 italic">Unit Terjual</p>
                     <h2 id="displaySold" class="text-2xl font-black italic text-white">0</h2>
                 </div>
                 <div class="bg-red-500 p-5 rounded-3xl shadow-lg">
-                    <p class="text-[10px] font-bold uppercase mb-1 opacity-80">Sisa Stok</p>
+                    <p class="text-[10px] font-bold uppercase mb-1 opacity-80 italic">Sisa Stok</p>
                     <h2 id="displayStock" class="text-2xl font-black italic text-white">0</h2>
                 </div>
             </div>
         </div>
 
         <div class="glass-card p-5 mb-8">
-            <h3 class="text-[10px] font-black mb-4 uppercase text-green-400 tracking-widest text-center">Trend Penjualan Bulanan</h3>
+            <h3 class="text-[10px] font-black mb-4 uppercase text-green-400 tracking-widest text-center italic">Trend Penjualan Bulanan</h3>
             <div class="h-48"><canvas id="lineChart"></canvas></div>
         </div>
 
-        <h3 class="text-xs font-bold mb-4 uppercase text-gray-400 tracking-widest pl-2 italic">Katalog Produk Terlaris</h3>
-        <div class="grid grid-cols-3 gap-3 mb-8">
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="https://i.ibb.co.com/Zph5sN5x/Miniatur-kapal-pinisi-1.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-black text-center uppercase">Kapal</p></div>
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="https://i.ibb.co.com/0RJQmDvd/Miniatur-rumah-bandingkan-tangsel.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-black text-center uppercase">Rumah</p></div>
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="https://i.ibb.co.com/YF1ryhFx/dfbe0639973fcd7a1747fd5d95862608.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-black text-center uppercase">Mobil</p></div>
+        <div class="grid grid-cols-1 gap-4 mb-8">
+            <div class="glass-card p-5 border-l-4 border-amber-500">
+                <h3 class="text-[10px] font-black mb-3 uppercase text-amber-500 italic leading-none">⚠️ Barang Jarang Laku (Slow Moving)</h3>
+                <div id="slowMovingList" class="space-y-2 text-[11px]">
+                    </div>
+            </div>
+            <div class="glass-card p-5 border-l-4 border-red-500">
+                <h3 class="text-[10px] font-black mb-3 uppercase text-red-500 italic leading-none">🚨 Stock Limit (Segera Habis)</h3>
+                <div id="lowStockList" class="space-y-2 text-[11px]">
+                    </div>
+            </div>
+        </div>
+
+        <h3 class="text-[10px] font-bold mb-4 uppercase text-gray-400 tracking-widest pl-2 italic no-print">Katalog Produk</h3>
+        <div class="grid grid-cols-3 gap-3 mb-8 no-print text-gray-800">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="kapal.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center uppercase">Kapal</p></div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="rumah.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center uppercase">Rumah</p></div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="mobil.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center uppercase">Mobil</p></div>
         </div>
 
         <div class="glass-card overflow-hidden mb-12">
             <div class="p-3 bg-white/5 font-bold text-[10px] uppercase text-green-400 border-b border-white/10 italic">Inventory Detail</div>
-            <table class="w-full text-left text-[10px]">
+            <table class="w-full text-left text-[11px]">
                 <thead class="bg-white/5 text-gray-400 uppercase">
                     <tr class="border-b border-white/10">
                         <th class="p-3">Produk</th>
@@ -63,17 +88,17 @@
                         <th class="p-3 text-center">Stok</th>
                     </tr>
                 </thead>
-                <tbody id="inventoryBody" class="divide-y divide-white/5 text-gray-300">
+                <tbody id="inventoryBody" class="divide-y divide-white/5 text-gray-300 italic">
                     </tbody>
             </table>
         </div>
 
-        <div class="fixed bottom-6 left-0 right-0 px-6">
+        <div class="fixed bottom-6 left-0 right-0 px-6 no-print">
             <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit?usp=drivesdk" 
                target="_blank"
-               class="flex items-center justify-center gap-3 w-full bg-white text-black font-black p-5 rounded-2xl shadow-2xl transition active:scale-95 shadow-green-500/20">
+               class="flex items-center justify-center gap-3 w-full bg-white text-black font-black p-5 rounded-2xl shadow-2xl transition active:scale-95">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="green"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-               EDIT DATA SPREADSHEET
+               EDIT DATABASE SPREADSHEET
             </a>
         </div>
     </div>
@@ -101,17 +126,28 @@
                         renderChart(monthlyValues);
                     }
 
-                    // Isi Tabel Detail
                     const tbody = document.getElementById('inventoryBody');
+                    const lowStockList = document.getElementById('lowStockList');
+                    const slowMovingList = document.getElementById('slowMovingList');
+                    
                     tbody.innerHTML = '';
+                    lowStockList.innerHTML = '';
+                    slowMovingList.innerHTML = '';
+
                     data.forEach((row, i) => {
                         if (i > 2 && row[2] && !row[2].toUpperCase().includes("TOTAL") && row[2].trim() !== "" && row[2] !== "NAMA PRODUK") {
-                            tbody.innerHTML += `
-                                <tr class="hover:bg-white/5 transition">
-                                    <td class="p-3 font-bold text-white uppercase">${row[2]}</td>
-                                    <td class="p-3 text-center text-blue-300 font-bold">${row[18] || 0}</td>
-                                    <td class="p-3 text-center text-red-400 font-bold">${row[17] || 0}</td>
-                                </tr>`;
+                            const nama = row[2];
+                            const terjual = parseInt(row[18]) || 0;
+                            const stok = parseInt(row[17]) || 0;
+
+                            tbody.innerHTML += `<tr class="border-b border-white/5"><td class="p-3 font-bold text-white uppercase">${nama}</td><td class="p-3 text-center text-sky-400 font-bold">${terjual}</td><td class="p-3 text-center text-red-400 font-bold">${stok}</td></tr>`;
+
+                            if (stok < 10) {
+                                lowStockList.innerHTML += `<div class="flex justify-between border-b border-white/5 pb-1 uppercase"><span>${nama}</span><span class="font-bold text-red-500">${stok} sisa</span></div>`;
+                            }
+                            if (terjual < 5) {
+                                slowMovingList.innerHTML += `<div class="flex justify-between border-b border-white/5 pb-1 uppercase"><span>${nama}</span><span class="font-bold text-amber-500">${terjual} laku</span></div>`;
+                            }
                         }
                     });
                 }
