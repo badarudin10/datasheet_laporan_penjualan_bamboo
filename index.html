@@ -3,58 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooArt Mobile Control</title>
+    <title>BambooArt Admin Mobile - Final Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f1711; color: white; }
-        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d130e; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
     </style>
 </head>
-<body class="p-4 pb-28">
+<body class="p-5 pb-32">
 
     <div class="max-w-md mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-xl font-bold tracking-tight text-green-500 italic">BambooArt Mobile</h1>
-            <button onclick="location.reload()" class="bg-white/10 p-2 rounded-full text-xs">🔄 Refresh</button>
-        </div>
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-extrabold text-green-500 italic uppercase">BambooArt</h1>
+            <button onclick="location.reload()" class="bg-white/10 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest">🔄 Update Data</button>
+        </header>
 
-        <div class="grid grid-cols-1 gap-4 mb-6">
-            <div class="bg-green-600 p-6 rounded-3xl shadow-lg">
-                <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Omzet</p>
-                <h2 id="displayRev" class="text-2xl font-black italic">Rp 181.900.000</h2>
+        <div class="space-y-4 mb-8">
+            <div class="bg-green-600 p-6 rounded-[30px] shadow-2xl">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70 text-white">Total Omzet</p>
+                <h2 id="displayRev" class="text-3xl font-black italic text-white leading-none">Rp ---</h2>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-sky-500 p-5 rounded-3xl shadow-lg">
-                    <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Unit Terjual</p>
-                    <h2 id="displaySold" class="text-2xl font-black italic">2540</h2>
+                <div class="bg-sky-500 p-6 rounded-[30px] shadow-xl">
+                    <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70 text-white">Terjual</p>
+                    <h2 id="displaySold" class="text-3xl font-black italic text-white leading-none">0</h2>
                 </div>
-                <div class="bg-red-500 p-5 rounded-3xl shadow-lg text-white">
-                    <p class="text-[10px] font-bold uppercase mb-1 opacity-80">Stok Akhir</p>
-                    <h2 id="displayStock" class="text-2xl font-black italic">1180</h2>
+                <div class="bg-red-500 p-6 rounded-[30px] shadow-xl">
+                    <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70 text-white">Stok</p>
+                    <h2 id="displayStock" class="text-3xl font-black italic text-white leading-none">0</h2>
                 </div>
             </div>
         </div>
 
-        <div class="glass-card p-5 mb-6">
-            <h3 class="text-[10px] font-black mb-4 uppercase text-green-400">Trend Penjualan</h3>
-            <div class="h-48"><canvas id="lineChart"></canvas></div>
+        <div class="glass p-6 mb-8">
+            <p class="text-[10px] font-bold uppercase tracking-widest mb-4 text-green-400">Trend Penjualan Bulanan</p>
+            <div class="h-44"><canvas id="lineChart"></canvas></div>
         </div>
 
-        <div class="fixed bottom-6 left-0 right-0 px-6">
-    <a href="https://docs.google.com/spreadsheets/d/1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/edit?usp=drivesdk" 
-       target="_blank"
-       class="flex items-center justify-center gap-3 w-full bg-white text-black font-black p-5 rounded-2xl shadow-2xl transition active:scale-95">
-       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="green"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-       EDIT DATA DI SPREADSHEET
-    </a>
-</div>
+        <div class="fixed bottom-8 left-0 right-0 px-6">
+            <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit?usp=drivesdk" 
+               target="_blank"
+               class="w-full bg-white text-black font-black p-5 rounded-2xl shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                EDIT DATA SEKARANG
+            </a>
+        </div>
     </div>
 
     <script>
-        const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
+        // LINK BARU YANG AKANG KIRIM
+        const sheetID = "14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4";
+        const sheetCsvUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv`;
 
         function syncData() {
             Papa.parse(sheetCsvUrl, {
@@ -67,7 +69,6 @@
                         document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0");
                         document.getElementById('displaySold').innerText = totalRow[18] || "0";
                         document.getElementById('displayStock').innerText = totalRow[17] || "0";
-
                         const monthlyValues = [];
                         for(let i=4; i<=15; i++) {
                             let val = totalRow[i] ? totalRow[i].toString().replace(/[^\d]/g, '') : "0";
@@ -88,14 +89,10 @@
                 data: {
                     labels: ['J','F','M','A','M','J','J','A','S','O','N','D'],
                     datasets: [{
-                        data: vals, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 2
+                        data: vals, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 0
                     }]
                 },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { y: { display: false }, x: { ticks: { color: '#666', font: {size: 10} }, grid: { display: false } } } 
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#666', font: {size: 10} }, grid: { display: false } } } }
             });
         }
 
@@ -103,3 +100,4 @@
     </script>
 </body>
 </html>
+
