@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooArt Pro Dashboard</title>
+    <title>BambooArt Intelligence Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,15 +11,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f1711; color: white; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
         .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
-        
-        /* CSS KHUSUS PRINT */
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; color: black !important; background-image: none !important; }
-            .glass-card { border: 1px solid #eee; background: white !important; color: black !important; box-shadow: none !important; }
-            .text-white, .text-green-400, .text-sky-400 { color: black !important; }
-            canvas { max-height: 250px !important; }
-        }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 50; padding: 20px; overflow-y: auto; }
+        @media print { .no-print { display: none !important; } .print-only { display: block !important; color: black; } body { background: white; color: black; } }
     </style>
 </head>
 <body class="p-4 pb-32">
@@ -27,84 +20,91 @@
     <div class="max-w-2xl mx-auto">
         <div class="flex justify-between items-center mb-8 no-print">
             <div class="flex items-center gap-3">
-                <div class="bg-green-600 p-2 rounded-lg font-bold shadow-lg shadow-green-900/40">BA</div>
-                <h1 class="text-xl font-bold tracking-tight text-white uppercase italic">BambooArt Pro</h1>
+                <div class="bg-green-600 p-2 rounded-lg font-bold shadow-lg">BA</div>
+                <h1 class="text-xl font-bold tracking-tight italic">BambooArt Pro</h1>
             </div>
-            <div class="flex gap-2">
-                <button onclick="window.print()" class="bg-white/10 p-2 rounded-xl text-[10px] font-bold border border-white/20">📄 PRINT</button>
-                <button onclick="location.reload()" class="bg-green-600 p-2 rounded-xl text-[10px] font-bold shadow-lg">🔄 REFRESH</button>
-            </div>
+            <button onclick="window.print()" class="bg-white/10 p-3 rounded-xl text-xs font-bold border border-white/20">📄 PRINT ANALISA</button>
         </div>
 
         <div class="grid grid-cols-1 gap-4 mb-6">
             <div class="bg-green-600 p-6 rounded-3xl shadow-xl">
                 <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Omzet Tahunan</p>
-                <h2 id="displayRev" class="text-3xl font-black italic">Memuat...</h2>
+                <h2 id="displayRev" class="text-3xl font-black italic">Rp ---</h2>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-sky-500 p-5 rounded-3xl shadow-lg">
-                    <p class="text-[10px] font-bold uppercase opacity-80 mb-1 italic">Unit Terjual</p>
-                    <h2 id="displaySold" class="text-2xl font-black italic text-white">0</h2>
-                </div>
-                <div class="bg-red-500 p-5 rounded-3xl shadow-lg">
-                    <p class="text-[10px] font-bold uppercase mb-1 opacity-80 italic">Sisa Stok</p>
-                    <h2 id="displayStock" class="text-2xl font-black italic text-white">0</h2>
-                </div>
-            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-8 no-print">
+            <button onclick="openModal('modalFinance')" class="bg-amber-600 p-4 rounded-2xl text-[10px] font-black uppercase shadow-lg">💰 Laporan Keuangan</button>
+            <button onclick="openModal('modalMarket')" class="bg-sky-600 p-4 rounded-2xl text-[10px] font-black uppercase shadow-lg">📊 Analisa Pasar</button>
         </div>
 
         <div class="glass-card p-5 mb-8">
-            <h3 class="text-[10px] font-black mb-4 uppercase text-green-400 tracking-widest text-center italic">Trend Penjualan Bulanan</h3>
+            <h3 class="text-[10px] font-black mb-4 uppercase text-green-400 text-center italic">Trend Penjualan</h3>
             <div class="h-48"><canvas id="lineChart"></canvas></div>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 mb-8">
-            <div class="glass-card p-5 border-l-4 border-amber-500">
-                <h3 class="text-[10px] font-black mb-3 uppercase text-amber-500 italic leading-none">⚠️ Barang Jarang Laku (Slow Moving)</h3>
-                <div id="slowMovingList" class="space-y-2 text-[11px]">
-                    </div>
-            </div>
-            <div class="glass-card p-5 border-l-4 border-red-500">
-                <h3 class="text-[10px] font-black mb-3 uppercase text-red-500 italic leading-none">🚨 Stock Limit (Segera Habis)</h3>
-                <div id="lowStockList" class="space-y-2 text-[11px]">
-                    </div>
-            </div>
-        </div>
-
-        <h3 class="text-[10px] font-bold mb-4 uppercase text-gray-400 tracking-widest pl-2 italic no-print">Katalog Produk</h3>
-        <div class="grid grid-cols-3 gap-3 mb-8 no-print text-gray-800">
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="kapal.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center uppercase">Kapal</p></div>
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="rumah.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center uppercase">Rumah</p></div>
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="mobil.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center uppercase">Mobil</p></div>
+        <h3 class="text-[10px] font-bold mb-4 uppercase text-gray-400 tracking-widest pl-2 italic">Produk Utama</h3>
+        <div class="grid grid-cols-3 gap-3 mb-8 text-gray-800">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="kapal.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center">KAPAL</p></div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="rumah.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center">RUMAH</p></div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg"><img src="mobil.jpg" class="h-24 w-full object-cover"><p class="p-2 text-[9px] font-bold text-center">MOBIL</p></div>
         </div>
 
         <div class="glass-card overflow-hidden mb-12">
-            <div class="p-3 bg-white/5 font-bold text-[10px] uppercase text-green-400 border-b border-white/10 italic">Inventory Detail</div>
-            <table class="w-full text-left text-[11px]">
-                <thead class="bg-white/5 text-gray-400 uppercase">
-                    <tr class="border-b border-white/10">
-                        <th class="p-3">Produk</th>
-                        <th class="p-3 text-center">Terjual</th>
-                        <th class="p-3 text-center">Stok</th>
-                    </tr>
-                </thead>
-                <tbody id="inventoryBody" class="divide-y divide-white/5 text-gray-300 italic">
-                    </tbody>
+            <div class="p-3 bg-white/5 font-bold text-[10px] uppercase text-green-400 border-b border-white/10 italic">Live Inventory</div>
+            <table class="w-full text-[11px]">
+                <tbody id="inventoryBody" class="divide-y divide-white/5"></tbody>
             </table>
         </div>
 
         <div class="fixed bottom-6 left-0 right-0 px-6 no-print">
-            <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit?usp=drivesdk" 
-               target="_blank"
-               class="flex items-center justify-center gap-3 w-full bg-white text-black font-black p-5 rounded-2xl shadow-2xl transition active:scale-95">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="green"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-               EDIT DATABASE SPREADSHEET
+            <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit" target="_blank" class="flex items-center justify-center gap-3 w-full bg-white text-black font-black p-5 rounded-2xl shadow-2xl">
+               EDIT SPREADSHEET
             </a>
+        </div>
+    </div>
+
+    <div id="modalFinance" class="modal">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-amber-500">💰 LAPORAN KEUANGAN</h2>
+                <button onclick="closeModal('modalFinance')" class="text-2xl">&times;</button>
+            </div>
+            <div class="glass-card p-6 mb-4">
+                <p class="text-xs text-gray-400 mb-1 italic">Total Nilai Aset Stok (Modal Mengendap):</p>
+                <h3 id="totalAssetValue" class="text-2xl font-black text-white">Rp 0</h3>
+            </div>
+            <div class="glass-card p-4">
+                <p class="text-[10px] font-bold text-amber-500 mb-4 uppercase">Detail Harga Barang Tidak Laku:</p>
+                <div id="deadStockDetail" class="space-y-3 text-xs"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalMarket" class="modal">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-sky-500">📊 ANALISA PASAR</h2>
+                <button onclick="closeModal('modalMarket')" class="text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div class="glass-card p-5 border-l-4 border-red-500">
+                    <h4 class="text-xs font-bold text-red-500 mb-3 uppercase italic">🚨 Stock Limit (Wajib Re-stock)</h4>
+                    <div id="lowStockList" class="space-y-2 text-xs"></div>
+                </div>
+                <div class="glass-card p-5 border-l-4 border-gray-500">
+                    <h4 class="text-xs font-bold text-gray-400 mb-3 uppercase italic">🐢 Barang Jarang Laku</h4>
+                    <div id="slowMovingList" class="space-y-2 text-xs"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
+
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function syncData() {
             Papa.parse(sheetCsvUrl, {
@@ -115,9 +115,6 @@
 
                     if (totalRow) {
                         document.getElementById('displayRev').innerText = "Rp " + (totalRow[20] || "0");
-                        document.getElementById('displaySold').innerText = totalRow[18] || "0";
-                        document.getElementById('displayStock').innerText = totalRow[17] || "0";
-
                         const monthlyValues = [];
                         for(let i=4; i<=15; i++) {
                             let val = totalRow[i] ? totalRow[i].toString().replace(/[^\d]/g, '') : "0";
@@ -126,30 +123,35 @@
                         renderChart(monthlyValues);
                     }
 
+                    let totalAsset = 0;
                     const tbody = document.getElementById('inventoryBody');
                     const lowStockList = document.getElementById('lowStockList');
                     const slowMovingList = document.getElementById('slowMovingList');
-                    
-                    tbody.innerHTML = '';
-                    lowStockList.innerHTML = '';
-                    slowMovingList.innerHTML = '';
+                    const deadStockDetail = document.getElementById('deadStockDetail');
+
+                    tbody.innerHTML = ''; lowStockList.innerHTML = ''; slowMovingList.innerHTML = ''; deadStockDetail.innerHTML = '';
 
                     data.forEach((row, i) => {
                         if (i > 2 && row[2] && !row[2].toUpperCase().includes("TOTAL") && row[2].trim() !== "" && row[2] !== "NAMA PRODUK") {
                             const nama = row[2];
                             const terjual = parseInt(row[18]) || 0;
                             const stok = parseInt(row[17]) || 0;
+                            const hargaSatuan = parseInt(row[16]?.replace(/[^\d]/g, '')) || 0; // Kolom Q
+                            const nilaiStok = stok * hargaSatuan;
+                            totalAsset += nilaiStok;
 
-                            tbody.innerHTML += `<tr class="border-b border-white/5"><td class="p-3 font-bold text-white uppercase">${nama}</td><td class="p-3 text-center text-sky-400 font-bold">${terjual}</td><td class="p-3 text-center text-red-400 font-bold">${stok}</td></tr>`;
+                            tbody.innerHTML += `<tr class="border-b border-white/5"><td class="p-3 uppercase font-bold text-white">${nama}</td><td class="p-3 text-center text-sky-400">${terjual} terjual</td><td class="p-3 text-right text-red-400">${stok} stok</td></tr>`;
 
                             if (stok < 10) {
-                                lowStockList.innerHTML += `<div class="flex justify-between border-b border-white/5 pb-1 uppercase"><span>${nama}</span><span class="font-bold text-red-500">${stok} sisa</span></div>`;
+                                lowStockList.innerHTML += `<div class="flex justify-between"><span>${nama}</span><span class="font-bold text-red-500">${stok} sisa</span></div>`;
                             }
                             if (terjual < 5) {
-                                slowMovingList.innerHTML += `<div class="flex justify-between border-b border-white/5 pb-1 uppercase"><span>${nama}</span><span class="font-bold text-amber-500">${terjual} laku</span></div>`;
+                                slowMovingList.innerHTML += `<div class="flex justify-between italic"><span>${nama}</span><span>${terjual} terjual</span></div>`;
+                                deadStockDetail.innerHTML += `<div class="flex justify-between border-b border-white/10 pb-1"><span>${nama} (${stok} pcs)</span><span class="text-amber-500 font-bold">Rp ${nilaiStok.toLocaleString()}</span></div>`;
                             }
                         }
                     });
+                    document.getElementById('totalAssetValue').innerText = "Rp " + totalAsset.toLocaleString();
                 }
             });
         }
@@ -162,14 +164,11 @@
                 type: 'line',
                 data: {
                     labels: ['J','F','M','A','M','J','J','A','S','O','N','D'],
-                    datasets: [{
-                        data: vals, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 0
-                    }]
+                    datasets: [{ data: vals, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 0 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#666', font: {size: 10} }, grid: { display: false } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#666' }, grid: { display: false } } } }
             });
         }
-
         syncData();
     </script>
 </body>
