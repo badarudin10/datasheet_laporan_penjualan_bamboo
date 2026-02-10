@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooArt Auditor Max - Perbaikan Akurasi</title>
+    <title>BambooArt Auditor Max - Precision Update</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f0c; color: white; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
         .glass-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
-        .month-card { border-left: 4px solid #22c55e; transition: 0.3s; }
+        .month-card { border-left: 4px solid #22c55e; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
+        .item-row { display: flex; justify-content: space-between; font-size: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         @media print { .no-print { display: none !important; } body { background: white; color: black; } }
     </style>
 </head>
@@ -21,39 +22,35 @@
         <header class="flex justify-between items-center mb-6 no-print">
             <div>
                 <h1 class="text-2xl font-black text-green-500 italic uppercase">BambooArt Auditor Max</h1>
-                <p class="text-[9px] font-bold text-gray-400 tracking-widest uppercase italic font-black">Sistem Laporan Penjualan Akurat</p>
+                <p class="text-[9px] font-bold text-gray-400 tracking-widest uppercase italic font-black">Laporan Penjualan Akurat (Pure Numbers)</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="location.reload()" class="bg-white/5 p-2 rounded-lg text-[10px] font-bold border border-white/10 uppercase font-black">🔄 Sync Data</button>
-                <button onclick="window.print()" class="bg-green-600 p-2 rounded-lg text-[10px] font-bold shadow-lg uppercase font-black">📄 Print Laporan</button>
+                <button onclick="window.print()" class="bg-green-600 p-2 rounded-lg text-[10px] font-bold shadow-lg uppercase font-black">📄 Print</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-green-700 p-6 rounded-[2rem] shadow-xl">
-                <p class="text-[9px] font-black uppercase opacity-70 italic text-white">Total Omzet Tahunan (Kolom U)</p>
+                <p class="text-[9px] font-black uppercase opacity-70 italic">Total Omzet Tahunan (U)</p>
                 <h2 id="boxOmzet" class="text-3xl font-black italic">Rp 0</h2>
             </div>
             <div class="bg-amber-500 p-6 rounded-[2rem] shadow-xl text-black">
                 <p class="text-[9px] font-black uppercase opacity-80 italic">Modal Mengendap (W x Q)</p>
                 <h2 id="boxModal" class="text-3xl font-black italic">Rp 0</h2>
             </div>
-            <div class="bg-sky-600 p-6 rounded-[2rem] shadow-xl text-white">
-                <p class="text-[9px] font-black uppercase opacity-70 italic">Total Database Produk</p>
+            <div class="bg-sky-600 p-6 rounded-[2rem] shadow-xl">
+                <p class="text-[9px] font-black uppercase opacity-70 italic">Produk Terdaftar</p>
                 <h2 id="boxDatabase" class="text-3xl font-black italic">0 Item</h2>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
             <div class="md:col-span-3 glass-card p-6 h-64 relative border border-white/10">
-                <h3 class="text-[10px] font-bold uppercase mb-2 text-green-400 italic text-center font-black">Grafik Tren Penjualan Bulanan (Rp)</h3>
                 <canvas id="lineChart"></canvas>
             </div>
             <div class="md:col-span-1 flex flex-col gap-3 no-print">
-                <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit" target="_blank" class="flex-1 flex items-center justify-center bg-white text-black rounded-3xl font-black uppercase text-[11px] border-b-4 border-green-600 px-4 text-center italic hover:bg-green-50 transition-all">📝 Input Data</a>
-                <div class="flex-1 glass-card p-4 flex flex-col justify-center text-center">
-                    <p class="text-[10px] text-green-500 font-bold uppercase italic font-black">Status: Terverifikasi</p>
-                </div>
+                <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit" target="_blank" class="flex-1 flex items-center justify-center bg-white text-black rounded-3xl font-black uppercase text-[11px] border-b-4 border-green-600 px-4 text-center italic">📝 Edit Spreadsheet</a>
             </div>
         </div>
 
@@ -67,10 +64,12 @@
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
 
-        function toNum(val) { 
-            if (!val) return 0; 
-            let clean = val.toString().replace(/[^0-9]/g, ''); 
-            return parseInt(clean) || 0; 
+        // Fungsi konversi angka murni (aman untuk format 100000)
+        function cleanNum(val) {
+            if (!val) return 0;
+            // Menghapus karakter selain angka
+            let num = parseInt(val.toString().replace(/[^0-9]/g, ''));
+            return isNaN(num) ? 0 : num;
         }
 
         function syncData() {
@@ -86,60 +85,62 @@
                     let chartValues = [];
                     mGrid.innerHTML = ''; 
 
-                    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-
-                    // 1. DATA MASTER (BARIS 3 - 20)
+                    // 1. HITUNG BOX DASHBOARD (Baris 3-20)
                     for (let i = 3; i <= 20; i++) {
-                        if (data[i] && data[i][2]) { 
+                        if (data[i] && data[i][2]) {
                             pCount++;
-                            const modalQ = toNum(data[i][16]); 
-                            const totalU = toNum(data[i][20]); 
-                            const sisaW  = toNum(data[i][22]); 
+                            const modal = cleanNum(data[i][16]); // Kolom Q
+                            const totalU = cleanNum(data[i][20]); // Kolom U
+                            const sisa  = cleanNum(data[i][22]); // Kolom W
+                            
                             gTotalOmzet += totalU;
-                            gTotalModalMacet += (sisaW * modalQ);
+                            gTotalModalMacet += (sisa * modal);
                         }
                     }
 
-                    // 2. PROSES BULANAN (E-P) - INI PERBAIKANNYA
+                    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+                    // 2. HITUNG Rincian & Total Omzet Per Bulan
                     months.forEach((mName, mIdx) => {
-                        const colIdx = mIdx + 4; // Januari = Index 4
-                        let mTotalOmzetBulan = 0;
-                        let mListHtml = '';
+                        const colIdx = mIdx + 4; // Januari mulai di kolom E
+                        let totalUangBulanIni = 0;
+                        let barisRincianHtml = '';
 
                         for (let i = 3; i <= 20; i++) {
                             if (data[i] && data[i][2]) {
-                                const unitTerjual = toNum(data[i][colIdx]);
-                                const hargaJualSatuProduk = toNum(data[i][19]); // Kolom T
+                                const qty = cleanNum(data[i][colIdx]);
+                                const harga = cleanNum(data[i][19]); // Kolom T
 
-                                if (unitTerjual > 0) {
-                                    // PERHITUNGAN SESUAI PERMINTAAN: Unit x Harga
-                                    const totalPerProduk = unitTerjual * hargaJualSatuProduk;
-                                    mTotalOmzetBulan += totalPerProduk;
+                                if (qty > 0) {
+                                    const subTotal = qty * harga;
+                                    totalUangBulanIni += subTotal;
 
-                                    mListHtml += `
-                                        <div class="flex justify-between text-[9px] py-1 border-b border-white/5 font-black italic">
-                                            <span>${data[i][2]} (${unitTerjual})</span>
-                                            <span class="text-green-400">Rp ${totalPerProduk.toLocaleString()}</span>
+                                    barisRincianHtml += `
+                                        <div class="item-row">
+                                            <span class="font-bold uppercase italic">${data[i][2]} <span class="text-gray-400">(${qty})</span></span>
+                                            <span class="text-green-400 font-black">Rp ${subTotal.toLocaleString('id-ID')}</span>
                                         </div>`;
                                 }
                             }
                         }
 
-                        // TAMPILKAN KE KOTAK BULAN
                         mGrid.innerHTML += `
                             <div class="glass-card p-5 month-card">
-                                <h4 class="text-green-500 font-black uppercase text-[10px] mb-2">${mName}</h4>
-                                <div class="mb-2 min-h-[40px]">${mListHtml || '<p class="text-[9px] opacity-20">0 Penjualan</p>'}</div>
-                                <div class="border-t border-white/10 pt-2 text-right font-black text-white italic text-[11px]">
-                                    Total Omzet: <br><span class="text-green-400 text-xs">Rp ${mTotalOmzetBulan.toLocaleString()}</span>
+                                <h4 class="text-green-500 font-black uppercase text-[11px] mb-3 tracking-wider">${mName}</h4>
+                                <div class="flex-grow">
+                                    ${barisRincianHtml || '<p class="text-[10px] opacity-20 italic">Belum ada laku</p>'}
+                                </div>
+                                <div class="border-t border-white/10 mt-4 pt-3 text-right">
+                                    <p class="text-[8px] uppercase opacity-50 font-black">Total Omzet</p>
+                                    <p class="text-white font-black italic text-sm">Rp ${totalUangBulanIni.toLocaleString('id-ID')}</p>
                                 </div>
                             </div>`;
                         
-                        chartValues.push(mTotalOmzetBulan);
+                        chartValues.push(totalUangBulanIni);
                     });
 
-                    document.getElementById('boxOmzet').innerText = "Rp " + gTotalOmzet.toLocaleString();
-                    document.getElementById('boxModal').innerText = "Rp " + gTotalModalMacet.toLocaleString();
+                    document.getElementById('boxOmzet').innerText = "Rp " + gTotalOmzet.toLocaleString('id-ID');
+                    document.getElementById('boxModal').innerText = "Rp " + gTotalModalMacet.toLocaleString('id-ID');
                     document.getElementById('boxDatabase').innerText = pCount + " Produk";
                     renderChart(chartValues);
                 }
@@ -158,13 +159,22 @@
                         data: vals, 
                         borderColor: '#22c55e', 
                         backgroundColor: 'rgba(34, 197, 94, 0.1)', 
-                        fill: true, tension: 0.4, borderWidth: 4, pointRadius: 4 
+                        fill: true, tension: 0.4, borderWidth: 4, pointRadius: 2 
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: true, beginAtZero: true }, x: { grid: { display: false } } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        y: { display: true, beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false } } 
+                    } 
+                }
             });
         }
         syncData();
     </script>
 </body>
 </html>
+
