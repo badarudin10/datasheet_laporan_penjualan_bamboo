@@ -133,4 +133,37 @@
                     // MASTER DATA & DASHBOARD
                     data.forEach((row, i) => {
                         if (i > 2 && row[2] && !row[2].toUpperCase().includes("TOTAL") && row[2].trim() !== "") {
-                            pCount
+                            pCount++;
+                            const n = row[2]; const mod = toNum(row[16]); const stk = toNum(row[17]); const l = toNum(row[18]); const j = toNum(row[19]); const aset = stk * mod;
+
+                            tFull.innerHTML += `<tr class="border-b border-white/5"><td class="p-3 font-bold uppercase">${n}</td><td class="p-3 text-center opacity-60">Rp ${mod.toLocaleString()}</td><td class="p-3 text-center">${stk}</td><td class="p-3 text-center font-black text-green-500">${l}</td><td class="p-3 text-center">Rp ${j.toLocaleString()}</td><td class="p-3 text-right font-black text-sky-400">Rp ${aset.toLocaleString()}</td></tr>`;
+                            if (l > 0) tOmzet.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 uppercase font-bold text-white">${n}</td><td class="p-4 text-center font-black">${l} Item</td><td class="p-4 text-right font-black">Rp ${(l * j).toLocaleString()}</td></tr>`;
+                            if (l < 5) { totalMacetVal += aset; tMacet.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 uppercase font-bold text-white">${n}</td><td class="p-4 text-center font-black text-red-500">${stk} Item</td><td class="p-4 text-right font-black text-amber-500">Rp ${aset.toLocaleString()}</td></tr>`; }
+                        }
+                    });
+
+                    if (totalRow) { document.getElementById('boxOmzet').innerText = "Rp " + totalRow[20]; }
+                    document.getElementById('boxModal').innerText = "Rp " + totalMacetVal.toLocaleString();
+                    document.getElementById('boxDatabase').innerText = pCount + " Item";
+                    renderChart(chartValues);
+                }
+            });
+        }
+
+        let myChart;
+        function renderChart(vals) {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+                    datasets: [{ data: vals, borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.4, borderWidth: 4, pointRadius: 2 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } } } }
+            });
+        }
+        syncData();
+    </script>
+</body>
+</html>
