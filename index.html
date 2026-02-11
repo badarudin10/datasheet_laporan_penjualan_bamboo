@@ -3,169 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooArt Pro Auditor Max</title>
+    <title>BambooArt Intelligence Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f0c; color: white; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 100; padding: 20px; overflow-y: auto; }
-        .glass-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
-        .month-card { border-left: 4px solid #22c55e; transition: 0.3s; }
-        .month-card:hover { background: rgba(34, 197, 94, 0.1); }
-        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-        @media print { .no-print { display: none !important; } body { background: white; color: black; } .glass-card { border: 1px solid #ccc; color: black; } .modal { display: block !important; position: static; } }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d110e; color: white; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; padding: 15px; overflow-y: auto; }
+        @media print { .no-print { display: none !important; } .modal { display: block !important; position: static; background: white; color: black; } }
     </style>
 </head>
-<body class="p-4 pb-20">
+<body class="p-4 pb-32">
 
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-4xl mx-auto">
         <header class="flex justify-between items-center mb-6 no-print">
             <div>
-                <h1 class="text-2xl font-black text-green-500 italic uppercase">BambooArt Auditor Max</h1>
-                <p class="text-[9px] font-bold text-gray-500 tracking-widest uppercase text-white/50">Laporan Keuangan & Stok Real-Time</p>
+                <h1 class="text-2xl font-black text-green-500 italic uppercase">BambooArt Master</h1>
+                <p class="text-[9px] font-bold text-gray-400">DATA SOURCE: GOOGLE SHEETS LIVE</p>
             </div>
-            <div class="flex gap-2">
-                <button onclick="location.reload()" class="bg-white/5 p-2 rounded-lg text-[10px] font-bold border border-white/10">🔄 REFRESH</button>
-                <button onclick="window.print()" class="bg-green-600 p-2 rounded-lg text-[10px] font-bold shadow-lg">📄 PRINT LAPORAN</button>
-            </div>
+            <button onclick="location.reload()" class="bg-green-600 p-3 rounded-2xl text-[10px] font-black shadow-lg">🔄 REFRESH DATA</button>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-green-700 p-6 rounded-[2rem] shadow-xl relative overflow-hidden">
-                <p class="text-[9px] font-bold uppercase opacity-70 italic">Total Omzet Setahun</p>
-                <h2 id="boxOmzet" class="text-3xl font-black italic">Rp 0</h2>
-                <button onclick="openModal('modOmzet')" class="mt-3 text-[8px] font-bold bg-black/20 px-4 py-1 rounded-full uppercase">Detail Produk Laku ></button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-green-600 p-6 rounded-[2rem] shadow-2xl">
+                <p class="text-[10px] font-black uppercase opacity-70 mb-1">Total Omzet Pertahun</p>
+                <h2 id="displayOmzet" class="text-4xl font-black italic">Rp 0</h2>
             </div>
-            <div class="bg-amber-500 p-6 rounded-[2rem] shadow-xl text-black relative overflow-hidden">
-                <p class="text-[9px] font-bold uppercase opacity-70 italic font-black">Total Modal Mengendap</p>
-                <h2 id="boxModal" class="text-3xl font-black italic">Rp 0</h2>
-                <button onclick="openModal('modMacet')" class="mt-3 text-[8px] font-bold bg-black/20 px-4 py-1 rounded-full uppercase">Detail Stok Macet ></button>
-            </div>
-            <div class="bg-sky-600 p-6 rounded-[2rem] shadow-xl relative overflow-hidden">
-                <p class="text-[9px] font-bold uppercase opacity-70 italic">Aset Database</p>
-                <h2 id="boxDatabase" class="text-3xl font-black italic">0 Item</h2>
-                <button onclick="openModal('modFullDb')" class="mt-3 text-[8px] font-bold bg-black/20 px-4 py-1 rounded-full uppercase">Semua Data Produk ></button>
+            <div class="bg-amber-500 p-6 rounded-[2rem] shadow-2xl" onclick="openModal('modFinance')">
+                <p class="text-[10px] font-black uppercase opacity-70 mb-1">Modal Mengendap (Stok Mati)</p>
+                <h2 id="displayModalMati" class="text-4xl font-black italic">Rp 0</h2>
+                <p class="text-[9px] mt-2 bg-black/20 p-1 inline-block rounded font-bold">KLIK UNTUK RINCIAN ASSET ></p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
-            <div class="md:col-span-3 glass-card p-6 h-56 relative">
-                <h3 class="text-[10px] font-bold uppercase mb-2 text-green-400 italic">Grafik Pertumbuhan Penjualan 2026</h3>
-                <canvas id="lineChart"></canvas>
-            </div>
-            <div class="md:col-span-1 flex flex-col gap-3">
-                <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit" target="_blank" class="flex-1 flex items-center justify-center bg-white text-black rounded-3xl font-black uppercase text-[10px] border-b-4 border-green-600 hover:bg-green-50 no-print">📝 Edit Database</a>
-                <div class="flex-1 glass-card p-4 flex flex-col justify-center text-center">
-                    <p class="text-[8px] uppercase opacity-50">Status Sistem</p>
-                    <p class="text-green-500 font-bold text-xs uppercase italic">Online & Aktif</p>
-                </div>
-            </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 no-print">
+            <button onclick="openModal('modFinance')" class="bg-white text-black p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">💰 Laporan Modal</button>
+            <button onclick="openModal('modMarket')" class="bg-sky-600 text-white p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">📊 Analisa Pasar</button>
+            <button onclick="openModal('modSales')" class="bg-purple-600 text-white p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">📅 Laporan Omzet</button>
+            <button onclick="window.print()" class="bg-gray-800 text-white p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">📄 Print Laporan</button>
         </div>
 
-        <h3 class="text-lg font-black uppercase italic text-white mb-6 flex items-center gap-2">
-            <span class="w-8 h-1 bg-green-500 inline-block"></span> 
-            Rincian Transaksi Bulanan (Audit Tahunan)
-        </h3>
-        <div id="monthlyGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            </div>
+        <div class="glass-card p-6 mb-8">
+            <h3 class="text-xs font-black mb-4 text-green-400 uppercase italic text-center">Visualisasi Penjualan Bulanan</h3>
+            <div class="h-64"><canvas id="mainChart"></canvas></div>
+        </div>
 
+        <div class="grid grid-cols-3 gap-3 mb-8 no-print">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-xl"><img src="kapal.jpg" class="h-24 w-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Kapal'"><p class="p-2 text-[9px] font-bold text-black text-center">KAPAL</p></div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-xl"><img src="rumah.jpg" class="h-24 w-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Rumah'"><p class="p-2 text-[9px] font-bold text-black text-center">RUMAH</p></div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-xl"><img src="mobil.jpg" class="h-24 w-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Mobil'"><p class="p-2 text-[9px] font-bold text-black text-center">MOBIL</p></div>
+        </div>
     </div>
 
-    <div id="modOmzet" class="modal"><div class="max-w-4xl mx-auto"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-green-500 italic uppercase">Rincian Penjualan Terbesar</h2><button onclick="closeModal('modOmzet')" class="text-4xl">&times;</button></div><div class="glass-card overflow-hidden"><table class="w-full text-left text-xs"><thead class="bg-green-700 text-white uppercase italic"><tr><th class="p-4">Produk</th><th class="p-4 text-center">Total Terjual</th><th class="p-4 text-right">Total Uang</th></tr></thead><tbody id="tableOmzet"></tbody></table></div></div></div>
+    <div id="modFinance" class="modal">
+        <div class="max-w-3xl mx-auto">
+            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-amber-500 uppercase italic">Laporan Asset & Profit</h2><button onclick="closeModal('modFinance')" class="text-4xl">&times;</button></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-white p-5 rounded-3xl text-black shadow-lg"><p class="text-[10px] font-bold uppercase mb-1">Total Laba Bersih</p><h3 id="netProfit" class="text-2xl font-black text-green-700">Rp 0</h3></div>
+                <div class="bg-red-500 p-5 rounded-3xl text-white shadow-lg"><p class="text-[10px] font-bold uppercase mb-1">Total Modal Macet</p><h3 id="deadAsset" class="text-2xl font-black text-white">Rp 0</h3></div>
+            </div>
+            <div class="glass-card overflow-hidden">
+                <table class="w-full text-[10px] text-left">
+                    <thead class="bg-white/10 uppercase"><tr><th class="p-4">Produk</th><th class="p-4">Sisa</th><th class="p-4">Modal Unit</th><th class="p-4 text-right">Total Aset</th><th class="p-4 text-center">Saran</th></tr></thead>
+                    <tbody id="financeBody" class="divide-y divide-white/10"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <div id="modMacet" class="modal"><div class="max-w-4xl mx-auto"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-amber-500 italic uppercase">Daftar Modal Mengendap</h2><button onclick="closeModal('modMacet')" class="text-4xl">&times;</button></div><div class="glass-card overflow-hidden"><table class="w-full text-left text-xs"><thead class="bg-amber-600 text-black uppercase italic"><tr><th class="p-4">Nama Barang</th><th class="p-4 text-center">Stok Mati</th><th class="p-4 text-right">Nilai Rupiah</th></tr></thead><tbody id="tableMacet"></tbody></table></div></div></div>
+    <div id="modMarket" class="modal">
+        <div class="max-w-3xl mx-auto">
+            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-sky-500 uppercase italic">Analisa Pergerakan Stok</h2><button onclick="closeModal('modMarket')" class="text-4xl">&times;</button></div>
+            <div id="marketList" class="grid grid-cols-1 gap-4"></div>
+        </div>
+    </div>
 
-    <div id="modFullDb" class="modal"><div class="max-w-6xl mx-auto"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-sky-500 italic uppercase">Database Master BambooArt</h2><button onclick="closeModal('modFullDb')" class="text-4xl">&times;</button></div><div class="glass-card overflow-hidden text-[10px]"><table class="w-full text-left"><thead class="bg-sky-800 text-white uppercase italic"><tr><th class="p-3">Nama Produk</th><th class="p-3 text-center">H. Modal</th><th class="p-3 text-center">Stok</th><th class="p-3 text-center">Laku</th><th class="p-3 text-center">H. Jual</th><th class="p-3 text-right">Nilai Aset</th></tr></thead><tbody id="tableFullDb"></tbody></table></div></div></div>
+    <div id="modSales" class="modal">
+        <div class="max-w-xl mx-auto text-center">
+            <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-black text-purple-500 uppercase italic">Omzet Per Bulan</h2><button onclick="closeModal('modSales')" class="text-4xl">&times;</button></div>
+            <div id="monthlyStats" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+        </div>
+    </div>
 
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
 
         function openModal(id) { document.getElementById(id).style.display = 'block'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function toNum(val) { if (!val) return 0; let clean = val.toString().replace(/[^0-9]/g, ''); return parseInt(clean) || 0; }
 
         function syncData() {
             Papa.parse(sheetCsvUrl, {
                 download: true,
                 complete: function(results) {
                     const data = results.data;
-                    const tOmzet = document.getElementById('tableOmzet');
-                    const tMacet = document.getElementById('tableMacet');
-                    const tFull = document.getElementById('tableFullDb');
-                    const mGrid = document.getElementById('monthlyGrid');
-                    
-                    let totalMacetVal = 0; let pCount = 0;
-                    tOmzet.innerHTML = ''; tMacet.innerHTML = ''; tFull.innerHTML = ''; mGrid.innerHTML = '';
+                    const fBody = document.getElementById('financeBody');
+                    const mList = document.getElementById('marketList');
+                    const mStats = document.getElementById('monthlyStats');
 
-                    const totalRow = data.find(r => r[2] && r[2].toString().toUpperCase().trim() === "TOTAL");
-                    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                    let totalRevenueYear = 0;
+                    let totalCapitalDead = 0;
+                    let totalCogsSold = 0; // Modal barang laku
 
-                    // GENERATE 12 BULAN RINCIAN
-                    months.forEach((mName, idx) => {
-                        const colIdx = idx + 4; // Kolom E s/d P
-                        let mTotalUang = 0;
-                        let mTotalQty = 0;
-                        let mList = '';
+                    fBody.innerHTML = ''; mList.innerHTML = ''; mStats.innerHTML = '';
 
-                        data.forEach((row, i) => {
-                            if (i > 2 && row[2] && !row[2].toUpperCase().includes("TOTAL") && row[2].trim() !== "" && row[2] !== "NAMA PRODUK") {
-                                const qty = toNum(row[colIdx]);
-                                const harga = toNum(row[19]); // Kolom T
-                                if (qty > 0) {
-                                    mTotalQty += qty;
-                                    mTotalUang += (qty * harga);
-                                    mList += `<div class="flex justify-between text-[10px] py-1 border-b border-white/5 italic"><span>${row[2]}</span><span>${qty} Item</span></div>`;
-                                }
-                            }
+                    // ANALISA BARIS TOTAL (OMZET)
+                    const omzetRow = data.find(r => r[0] && r[0].toString().toUpperCase().trim() === "OMZET");
+                    if (omzetRow) {
+                        totalRevenueYear = parseInt(omzetRow[13]?.replace(/[^\d]/g, '')) || 0;
+                        document.getElementById('displayOmzet').innerText = "Rp " + totalRevenueYear.toLocaleString();
+                        
+                        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                        const vals = [];
+                        months.forEach((m, i) => {
+                            let val = parseInt(omzetRow[i+1]?.replace(/[^\d]/g, '')) || 0;
+                            vals.push(val);
+                            mStats.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl border border-white/10 uppercase"><b>${m}</b><br><span class="text-purple-400">Rp ${val.toLocaleString()}</span></div>`;
                         });
+                        renderChart(vals);
+                    }
 
-                        mGrid.innerHTML += `
-                            <div class="glass-card p-5 month-card relative overflow-hidden">
-                                <h4 class="text-green-500 font-black uppercase text-xs mb-3 italic tracking-tighter">${mName}</h4>
-                                <div class="mb-4 max-h-40 overflow-y-auto">${mList || '<p class="text-[9px] opacity-30 italic">Tidak ada transaksi</p>'}</div>
-                                <div class="border-t border-green-900 pt-3">
-                                    <div class="flex justify-between text-[9px] font-bold"><span>ITEM LAKU</span><span>${mTotalQty}</span></div>
-                                    <div class="flex justify-between text-xs font-black text-white mt-1 uppercase italic"><span>Total Omzet</span><span>Rp ${mTotalUang.toLocaleString()}</span></div>
-                                </div>
-                            </div>`;
-                    });
-
-                    // DATABASE & SUMMARY
+                    // ANALISA PRODUK (MODAL & STOK)
                     data.forEach((row, i) => {
-                        if (i > 2 && row[2] && !row[2].toUpperCase().includes("TOTAL") && row[2].trim() !== "" && row[2] !== "NAMA PRODUK") {
-                            pCount++;
-                            const n = row[2]; const m = toNum(row[16]); const s = toNum(row[17]); const l = toNum(row[18]); const j = toNum(row[19]); const aset = s * m;
+                        if (i > 0 && row[1] && !row[0].toUpperCase().includes("OMZET") && row[1].trim() !== "Nama Produk") {
+                            const nama = row[1];
+                            const harga = parseInt(row[2]) || 0;
+                            const stok = parseInt(row[17]) || 0;
+                            const laku = parseInt(row[16]) || 0;
+                            const modalMati = stok * harga;
+                            
+                            totalCapitalDead += modalMati;
+                            totalCogsSold += (laku * harga);
 
-                            tFull.innerHTML += `<tr class="border-b border-white/5"><td class="p-3 font-bold uppercase">${n}</td><td class="p-3 text-center italic">Rp ${m.toLocaleString()}</td><td class="p-3 text-center">${s}</td><td class="p-3 text-center font-black text-green-500">${l}</td><td class="p-3 text-center italic">Rp ${j.toLocaleString()}</td><td class="p-3 text-right font-black text-sky-400">Rp ${aset.toLocaleString()}</td></tr>`;
-                            if (l > 0) tOmzet.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 uppercase font-bold">${n}</td><td class="p-4 text-center font-black">${l} Item</td><td class="p-4 text-right font-black">Rp ${(l * j).toLocaleString()}</td></tr>`;
-                            if (l < 5) { totalMacetVal += aset; tMacet.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 uppercase font-bold text-white">${n}</td><td class="p-4 text-center font-black text-red-500">${s} Item</td><td class="p-4 text-right font-black text-amber-500">Rp ${aset.toLocaleString()}</td></tr>`; }
+                            // Tabel Laporan Modal
+                            fBody.innerHTML += `
+                                <tr class="${laku < 10 ? 'bg-red-500/10' : ''}">
+                                    <td class="p-4 uppercase font-bold text-white">${nama}</td>
+                                    <td class="p-4">${stok} Unit</td>
+                                    <td class="p-4">Rp ${harga.toLocaleString()}</td>
+                                    <td class="p-4 text-right font-black text-amber-500">Rp ${modalMati.toLocaleString()}</td>
+                                    <td class="p-4 text-center"><span class="text-[8px] bg-red-600 px-1 rounded font-black">${laku < 10 ? 'DISKON!' : 'AMAN'}</span></td>
+                                </tr>`;
+
+                            // Analisa Pasar
+                            mList.innerHTML += `
+                                <div class="glass-card p-4 border-l-8 ${stok < 10 ? 'border-red-600' : 'border-sky-600'}">
+                                    <div class="flex justify-between font-black uppercase mb-1"><span>${nama}</span><span>${stok} Unit Sisa</span></div>
+                                    <div class="text-[10px] flex justify-between"><span>Penjualan: ${laku} Unit/Thn</span><span class="${laku < 10 ? 'text-red-500' : 'text-green-500'}">REKOMENDASI: ${laku < 10 ? 'DISCOUNT BESAR' : 'PRODUKSI LAGI'}</span></div>
+                                </div>`;
                         }
                     });
 
-                    if (totalRow) {
-                        document.getElementById('boxOmzet').innerText = "Rp " + totalRow[20];
-                        const mChart = []; for(let x=4; x<=15; x++) { mChart.push(toNum(totalRow[x])); }
-                        renderChart(mChart);
-                    }
-                    document.getElementById('boxModal').innerText = "Rp " + totalMacetVal.toLocaleString();
-                    document.getElementById('boxDatabase').innerText = pCount + " Item";
+                    document.getElementById('displayModalMati').innerText = "Rp " + totalCapitalDead.toLocaleString();
+                    document.getElementById('deadAsset').innerText = "Rp " + totalCapitalDead.toLocaleString();
+                    document.getElementById('netProfit').innerText = "Rp " + (totalRevenueYear - totalCogsSold).toLocaleString();
                 }
             });
         }
 
         let myChart;
         function renderChart(vals) {
-            const ctx = document.getElementById('lineChart').getContext('2d');
+            const ctx = document.getElementById('mainChart');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
-                    datasets: [{ label: 'Omzet', data: vals, borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.4, borderWidth: 4, pointRadius: 3 }]
+                    datasets: [{ data: vals, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.1)', fill: true, tension: 0.4, borderWidth: 4, pointRadius: 4 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
             });
         }
         syncData();
