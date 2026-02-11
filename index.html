@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooArt Intelligence Pro</title>
+    <title>BambooArt Intelligence Master</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d110e; color: white; background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); }
-        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; padding: 15px; overflow-y: auto; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1.5rem; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 100; padding: 15px; overflow-y: auto; }
         @media print { .no-print { display: none !important; } .modal { display: block !important; position: static; background: white; color: black; } }
     </style>
 </head>
@@ -20,54 +20,53 @@
     <div class="max-w-4xl mx-auto">
         <header class="flex justify-between items-center mb-6 no-print">
             <div>
-                <h1 class="text-2xl font-black text-green-500 italic uppercase">BambooArt Master</h1>
-                <p class="text-[9px] font-bold text-gray-400">DATA SOURCE: GOOGLE SHEETS LIVE</p>
+                <h1 class="text-2xl font-black text-green-500 italic">BAMBOOART MASTER</h1>
+                <p class="text-[9px] font-bold text-gray-500">REAL-TIME DATA TRACKING</p>
             </div>
-            <button onclick="location.reload()" class="bg-green-600 p-3 rounded-2xl text-[10px] font-black shadow-lg">🔄 REFRESH DATA</button>
+            <button onclick="location.reload()" class="bg-green-600 p-3 rounded-2xl text-[10px] font-black shadow-lg hover:bg-green-500 transition">🔄 SINKRON DATA</button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="bg-green-600 p-6 rounded-[2rem] shadow-2xl">
-                <p class="text-[10px] font-black uppercase opacity-70 mb-1">Total Omzet Pertahun</p>
-                <h2 id="displayOmzet" class="text-4xl font-black italic">Rp 0</h2>
+            <div class="bg-green-600 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden">
+                <p class="text-[10px] font-black uppercase opacity-70 mb-1">Total Omzet (Tahun Ini)</p>
+                <h2 id="dispOmzet" class="text-4xl font-black italic">Rp 0</h2>
+                <div class="absolute -right-2 -bottom-2 opacity-10 text-6xl font-black italic">CASH</div>
             </div>
-            <div class="bg-amber-500 p-6 rounded-[2rem] shadow-2xl" onclick="openModal('modFinance')">
-                <p class="text-[10px] font-black uppercase opacity-70 mb-1">Modal Mengendap (Stok Mati)</p>
-                <h2 id="displayModalMati" class="text-4xl font-black italic">Rp 0</h2>
-                <p class="text-[9px] mt-2 bg-black/20 p-1 inline-block rounded font-bold">KLIK UNTUK RINCIAN ASSET ></p>
+            <div class="bg-amber-500 p-6 rounded-[2rem] shadow-2xl relative overflow-hidden" onclick="openModal('modFinance')">
+                <p class="text-[10px] font-black uppercase opacity-70 mb-1">Modal Mati (Aset Mengendap)</p>
+                <h2 id="dispModalMati" class="text-4xl font-black italic">Rp 0</h2>
+                <div class="absolute -right-2 -bottom-2 opacity-10 text-6xl font-black italic">STOCK</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 no-print">
-            <button onclick="openModal('modFinance')" class="bg-white text-black p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">💰 Laporan Modal</button>
-            <button onclick="openModal('modMarket')" class="bg-sky-600 text-white p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">📊 Analisa Pasar</button>
-            <button onclick="openModal('modSales')" class="bg-purple-600 text-white p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">📅 Laporan Omzet</button>
-            <button onclick="window.print()" class="bg-gray-800 text-white p-4 rounded-2xl text-[9px] font-black uppercase shadow-lg">📄 Print Laporan</button>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 no-print text-center">
+            <button onclick="openModal('modFinance')" class="bg-white text-black p-4 rounded-2xl text-[9px] font-black uppercase">💰 Untung & Rugi</button>
+            <button onclick="openModal('modMarket')" class="bg-sky-600 text-white p-4 rounded-2xl text-[9px] font-black uppercase">📊 Analisa Pasar</button>
+            <button onclick="openModal('modSales')" class="bg-purple-600 text-white p-4 rounded-2xl text-[9px] font-black uppercase">📅 Omzet Bulanan</button>
+            <button onclick="window.print()" class="bg-gray-800 text-white p-4 rounded-2xl text-[9px] font-black uppercase">📄 Print Laporan</button>
         </div>
 
         <div class="glass-card p-6 mb-8">
-            <h3 class="text-xs font-black mb-4 text-green-400 uppercase italic text-center">Visualisasi Penjualan Bulanan</h3>
+            <h3 class="text-xs font-black mb-4 text-green-400 uppercase italic text-center">Trend Pertumbuhan Omzet</h3>
             <div class="h-64"><canvas id="mainChart"></canvas></div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8 no-print">
-            <div class="bg-white rounded-2xl overflow-hidden shadow-xl"><img src="kapal.jpg" class="h-24 w-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Kapal'"><p class="p-2 text-[9px] font-bold text-black text-center">KAPAL</p></div>
-            <div class="bg-white rounded-2xl overflow-hidden shadow-xl"><img src="rumah.jpg" class="h-24 w-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Rumah'"><p class="p-2 text-[9px] font-bold text-black text-center">RUMAH</p></div>
-            <div class="bg-white rounded-2xl overflow-hidden shadow-xl"><img src="mobil.jpg" class="h-24 w-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Mobil'"><p class="p-2 text-[9px] font-bold text-black text-center">MOBIL</p></div>
+        <div class="fixed bottom-6 left-0 right-0 px-6 no-print text-center">
+            <a href="https://docs.google.com/spreadsheets/d/14ZCE5Vh3yCfBwJqztin6lwNRFfviPGFh7ThLQQMHTi4/edit" target="_blank" class="inline-block bg-white text-black font-black px-12 py-5 rounded-full shadow-2xl uppercase text-[10px] tracking-widest border-2 border-green-600">📝 EDIT DATABASE UTAMA</a>
         </div>
     </div>
 
     <div id="modFinance" class="modal">
         <div class="max-w-3xl mx-auto">
-            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-amber-500 uppercase italic">Laporan Asset & Profit</h2><button onclick="closeModal('modFinance')" class="text-4xl">&times;</button></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div class="bg-white p-5 rounded-3xl text-black shadow-lg"><p class="text-[10px] font-bold uppercase mb-1">Total Laba Bersih</p><h3 id="netProfit" class="text-2xl font-black text-green-700">Rp 0</h3></div>
-                <div class="bg-red-500 p-5 rounded-3xl text-white shadow-lg"><p class="text-[10px] font-bold uppercase mb-1">Total Modal Macet</p><h3 id="deadAsset" class="text-2xl font-black text-white">Rp 0</h3></div>
+            <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black text-amber-500 italic uppercase">Laporan Keuangan & Modal</h2><button onclick="closeModal('modFinance')" class="text-4xl text-white">&times;</button></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-white p-6 rounded-3xl text-black"><p class="text-[10px] font-bold uppercase mb-1">Total Laba Bersih (Profit)</p><h3 id="netProfit" class="text-3xl font-black text-green-700">Rp 0</h3></div>
+                <div class="bg-red-500 p-6 rounded-3xl text-white"><p class="text-[10px] font-bold uppercase mb-1">Total Modal Mengendap</p><h3 id="totalDeadAsset" class="text-3xl font-black">Rp 0</h3></div>
             </div>
             <div class="glass-card overflow-hidden">
                 <table class="w-full text-[10px] text-left">
-                    <thead class="bg-white/10 uppercase"><tr><th class="p-4">Produk</th><th class="p-4">Sisa</th><th class="p-4">Modal Unit</th><th class="p-4 text-right">Total Aset</th><th class="p-4 text-center">Saran</th></tr></thead>
-                    <tbody id="financeBody" class="divide-y divide-white/10"></tbody>
+                    <thead class="bg-white/10 uppercase text-gray-400"><tr><th class="p-4">Produk</th><th class="p-4">Sisa</th><th class="p-4">Hrg Modal</th><th class="p-4 text-right">Total Aset</th><th class="p-4 text-center">Tindakan</th></tr></thead>
+                    <tbody id="fBody" class="divide-y divide-white/10 italic"></tbody>
                 </table>
             </div>
         </div>
@@ -75,89 +74,95 @@
 
     <div id="modMarket" class="modal">
         <div class="max-w-3xl mx-auto">
-            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-sky-500 uppercase italic">Analisa Pergerakan Stok</h2><button onclick="closeModal('modMarket')" class="text-4xl">&times;</button></div>
-            <div id="marketList" class="grid grid-cols-1 gap-4"></div>
+            <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black text-sky-500 italic uppercase">Analisa Pergerakan Pasar</h2><button onclick="closeModal('modMarket')" class="text-4xl text-white">&times;</button></div>
+            <div id="mList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
     </div>
 
     <div id="modSales" class="modal">
-        <div class="max-w-xl mx-auto text-center">
-            <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-black text-purple-500 uppercase italic">Omzet Per Bulan</h2><button onclick="closeModal('modSales')" class="text-4xl">&times;</button></div>
-            <div id="monthlyStats" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+        <div class="max-w-2xl mx-auto">
+            <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black text-purple-500 italic uppercase">Rincian Omzet Bulanan</h2><button onclick="closeModal('modSales')" class="text-4xl text-white">&times;</button></div>
+            <div id="sList" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
         </div>
     </div>
 
     <script>
-        const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
 
         function openModal(id) { document.getElementById(id).style.display = 'block'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function syncData() {
-            Papa.parse(sheetCsvUrl, {
+            Papa.parse(csvUrl, {
                 download: true,
                 complete: function(results) {
                     const data = results.data;
-                    const fBody = document.getElementById('financeBody');
-                    const mList = document.getElementById('marketList');
-                    const mStats = document.getElementById('monthlyStats');
+                    const fBody = document.getElementById('fBody');
+                    const mList = document.getElementById('mList');
+                    const sList = document.getElementById('sList');
 
-                    let totalRevenueYear = 0;
+                    let totalOmzetYear = 0;
                     let totalCapitalDead = 0;
-                    let totalCogsSold = 0; // Modal barang laku
+                    let totalCogsSold = 0;
 
-                    fBody.innerHTML = ''; mList.innerHTML = ''; mStats.innerHTML = '';
+                    fBody.innerHTML = ''; mList.innerHTML = ''; sList.innerHTML = '';
 
-                    // ANALISA BARIS TOTAL (OMZET)
-                    const omzetRow = data.find(r => r[0] && r[0].toString().toUpperCase().trim() === "OMZET");
+                    // 1. CARI BARIS OMZET (Biasanya di baris paling bawah)
+                    const omzetRow = data.find(r => r[0] && r[0].toString().toUpperCase().trim().includes("OMZET"));
                     if (omzetRow) {
-                        totalRevenueYear = parseInt(omzetRow[13]?.replace(/[^\d]/g, '')) || 0;
-                        document.getElementById('displayOmzet').innerText = "Rp " + totalRevenueYear.toLocaleString();
+                        totalOmzetYear = parseInt(omzetRow[15]?.replace(/[^\d]/g, '')) || 0; // Kolom P
+                        document.getElementById('dispOmzet').innerText = "Rp " + totalOmzetYear.toLocaleString();
                         
                         const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-                        const vals = [];
-                        months.forEach((m, i) => {
-                            let val = parseInt(omzetRow[i+1]?.replace(/[^\d]/g, '')) || 0;
-                            vals.push(val);
-                            mStats.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl border border-white/10 uppercase"><b>${m}</b><br><span class="text-purple-400">Rp ${val.toLocaleString()}</span></div>`;
+                        const chartData = [];
+                        months.forEach((m, idx) => {
+                            let val = parseInt(omzetRow[idx+3]?.replace(/[^\d]/g, '')) || 0; // Kolom D-O (Index 3-14)
+                            chartData.push(val);
+                            sList.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl border border-white/10 uppercase text-center"><b>${m}</b><br><span class="text-purple-400 font-bold">Rp ${val.toLocaleString()}</span></div>`;
                         });
-                        renderChart(vals);
+                        renderChart(chartData);
                     }
 
-                    // ANALISA PRODUK (MODAL & STOK)
+                    // 2. PROSES PRODUK (Loop baris 2 sampai sebelum baris Omzet)
                     data.forEach((row, i) => {
-                        if (i > 0 && row[1] && !row[0].toUpperCase().includes("OMZET") && row[1].trim() !== "Nama Produk") {
-                            const nama = row[1];
-                            const harga = parseInt(row[2]) || 0;
-                            const stok = parseInt(row[17]) || 0;
-                            const laku = parseInt(row[16]) || 0;
-                            const modalMati = stok * harga;
-                            
-                            totalCapitalDead += modalMati;
-                            totalCogsSold += (laku * harga);
+                        // Cek jika kolom B (Nama Produk) ada isinya dan bukan header/omzet
+                        if (i > 0 && row[1] && !row[0].toUpperCase().includes("OMZET") && row[1] !== "Nama Produk") {
+                            const nama = row[1]; // Kolom B
+                            const hrgModal = parseInt(row[2]?.replace(/[^\d]/g, '')) || 0; // Kolom C
+                            const laku = parseInt(row[16]) || 0; // Kolom Q
+                            const stok = parseInt(row[17]) || 0; // Kolom R
+                            const assetValue = stok * hrgModal;
 
-                            // Tabel Laporan Modal
+                            totalCapitalDead += assetValue;
+                            totalCogsSold += (laku * hrgModal);
+
+                            // Laporan Keuangan
+                            let rekomendasi = laku < 10 ? '🚨 DISKON BESAR' : '✅ AMAN';
                             fBody.innerHTML += `
                                 <tr class="${laku < 10 ? 'bg-red-500/10' : ''}">
-                                    <td class="p-4 uppercase font-bold text-white">${nama}</td>
-                                    <td class="p-4">${stok} Unit</td>
-                                    <td class="p-4">Rp ${harga.toLocaleString()}</td>
-                                    <td class="p-4 text-right font-black text-amber-500">Rp ${modalMati.toLocaleString()}</td>
-                                    <td class="p-4 text-center"><span class="text-[8px] bg-red-600 px-1 rounded font-black">${laku < 10 ? 'DISKON!' : 'AMAN'}</span></td>
+                                    <td class="p-4 font-bold uppercase text-white">${nama}</td>
+                                    <td class="p-4 text-center font-black">${stok}</td>
+                                    <td class="p-4 text-center text-gray-500">Rp ${hrgModal.toLocaleString()}</td>
+                                    <td class="p-4 text-right font-black text-amber-500">Rp ${assetValue.toLocaleString()}</td>
+                                    <td class="p-4 text-center"><span class="bg-red-600 text-[8px] px-1 rounded font-black uppercase">${laku < 10 ? 'OBRAL' : 'STABIL'}</span></td>
                                 </tr>`;
 
                             // Analisa Pasar
                             mList.innerHTML += `
-                                <div class="glass-card p-4 border-l-8 ${stok < 10 ? 'border-red-600' : 'border-sky-600'}">
-                                    <div class="flex justify-between font-black uppercase mb-1"><span>${nama}</span><span>${stok} Unit Sisa</span></div>
-                                    <div class="text-[10px] flex justify-between"><span>Penjualan: ${laku} Unit/Thn</span><span class="${laku < 10 ? 'text-red-500' : 'text-green-500'}">REKOMENDASI: ${laku < 10 ? 'DISCOUNT BESAR' : 'PRODUKSI LAGI'}</span></div>
+                                <div class="glass-card p-5 border-l-8 ${stok < 10 ? 'border-red-600' : 'border-sky-600'}">
+                                    <div class="flex justify-between font-black uppercase mb-1"><span>${nama}</span><span class="${stok < 10 ? 'text-red-500' : ''}">${stok} Unit</span></div>
+                                    <div class="text-[9px] text-gray-400 flex justify-between">
+                                        <span>Terjual: ${laku} | Modal Mati: Rp ${assetValue.toLocaleString()}</span>
+                                        <span class="font-bold text-white uppercase">${rekomendasi}</span>
+                                    </div>
                                 </div>`;
                         }
                     });
 
-                    document.getElementById('displayModalMati').innerText = "Rp " + totalCapitalDead.toLocaleString();
-                    document.getElementById('deadAsset').innerText = "Rp " + totalCapitalDead.toLocaleString();
-                    document.getElementById('netProfit').innerText = "Rp " + (totalRevenueYear - totalCogsSold).toLocaleString();
+                    // 3. UPDATE HEADER & RINGKASAN
+                    document.getElementById('dispModalMati').innerText = "Rp " + totalCapitalDead.toLocaleString();
+                    document.getElementById('totalDeadAsset').innerText = "Rp " + totalCapitalDead.toLocaleString();
+                    document.getElementById('netProfit').innerText = "Rp " + (totalOmzetYear - totalCogsSold).toLocaleString();
                 }
             });
         }
@@ -170,9 +175,9 @@
                 type: 'line',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
-                    datasets: [{ data: vals, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.1)', fill: true, tension: 0.4, borderWidth: 4, pointRadius: 4 }]
+                    datasets: [{ data: vals, borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.1)', fill: true, tension: 0.4, borderWidth: 4, pointRadius: 4, pointBackgroundColor: '#fff' }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } }, x: { grid: { display: false }, ticks: { color: '#666' } } } }
             });
         }
         syncData();
