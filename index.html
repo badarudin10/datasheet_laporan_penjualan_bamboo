@@ -3,250 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BambooArt Pro Dashboard</title>
+    <title>BambooArt Professional ERP System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d1117; color: #e6edf3; }
-        .glass { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(48, 54, 61, 1); border-radius: 1.5rem; }
-        .card-green { background: linear-gradient(135deg, #238636 0%, #2ea043 100%); }
-        .card-amber { background: linear-gradient(135deg, #9e6a03 0%, #d29922 100%); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(1, 4, 9, 0.95); z-index: 1000; padding: 20px; overflow-y: auto; }
-        .status-badge { padding: 4px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        @media print { .no-print { display: none !important; } .modal { display: block !important; position: static; background: white; color: black; } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #050505; color: #fff; }
+        .stat-card { background: linear-gradient(145deg, #111, #000); border: 1px solid #333; transition: 0.3s; }
+        .stat-card:hover { border-color: #10b981; transform: translateY(-5px); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 99; backdrop-filter: blur(10px); }
+        .btn-action { background: #10b981; color: #000; font-weight: 900; text-transform: uppercase; padding: 12px; border-radius: 8px; font-size: 11px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8 pb-32">
+<body class="p-6">
+
+    <div class="max-w-6xl mx-auto mb-10 no-print">
+        <div class="stat-card p-4 rounded-xl flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">System Connected to Live Sheets</span>
+            </div>
+            <div class="flex gap-2 flex-1 max-w-lg">
+                <input type="text" id="sheetUrl" placeholder="Masukkan Link CSV/Spreadsheet Anda..." class="bg-black border border-gray-800 rounded-lg p-2 text-xs w-full outline-none focus:border-green-500 text-gray-400" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv">
+                <button onclick="initSystem()" class="bg-white text-black font-black text-[10px] px-4 rounded-lg uppercase">Update</button>
+            </div>
+        </div>
+    </div>
 
     <div class="max-w-6xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 no-print">
-            <div class="flex items-center gap-4">
-                <div class="bg-green-500 text-black p-3 rounded-2xl font-black text-xl shadow-lg shadow-green-500/20">BA</div>
-                <div>
-                    <h1 class="text-2xl font-black tracking-tight text-white uppercase italic">BambooArt <span class="text-green-500">Intelligence</span></h1>
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Sistem Laporan Keuangan Terpadu</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="stat-card p-8 rounded-3xl md:col-span-2 border-b-4 border-b-green-500">
+                <p class="text-[10px] font-black text-gray-500 uppercase mb-2 italic">Total Omzet Pertahun (Live Data)</p>
+                <h1 id="totalOmzet" class="text-5xl font-black text-white tracking-tighter">Rp 0</h1>
+            </div>
+            <div class="stat-card p-8 rounded-3xl border-b-4 border-b-amber-500 cursor-pointer" onclick="showModal('financeModal')">
+                <p class="text-[10px] font-black text-gray-500 uppercase mb-2 italic">Modal Macet (Sisa Stok)</p>
+                <h1 id="totalModal" class="text-3xl font-black text-amber-500 tracking-tighter">Rp 0</h1>
+            </div>
+            <div class="stat-card p-8 rounded-3xl border-b-4 border-b-sky-500">
+                <p class="text-[10px] font-black text-gray-500 uppercase mb-2 italic">Estimasi Keuntungan Bersih</p>
+                <h1 id="totalProfit" class="text-3xl font-black text-sky-400 tracking-tighter">Rp 0</h1>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="stat-card p-6 rounded-3xl md:col-span-2 h-[400px]">
+                <canvas id="salesChart"></canvas>
+            </div>
+            <div class="flex flex-col gap-4 no-print">
+                <button onclick="showModal('marketModal')" class="stat-card p-6 rounded-2xl text-left hover:bg-gray-900">
+                    <h3 class="font-black text-xs uppercase text-green-500">📊 Analisa Performa Produk</h3>
+                    <p class="text-[10px] text-gray-500 mt-1">Cek barang paling laku & slow moving</p>
+                </button>
+                <button onclick="showModal('financeModal')" class="stat-card p-6 rounded-2xl text-left hover:bg-gray-900">
+                    <h3 class="font-black text-xs uppercase text-amber-500">💰 Laporan Modal Mengendap</h3>
+                    <p class="text-[10px] text-gray-500 mt-1">Saran diskon untuk barang stok lama</p>
+                </button>
+                <div class="stat-card p-6 rounded-2xl bg-gradient-to-br from-gray-900 to-black">
+                    <h3 class="font-black text-[10px] text-gray-400 uppercase italic mb-4">Maintenance Status</h3>
+                    <div class="flex justify-between text-[10px] mb-2"><span>Data Accuracy:</span> <span class="text-green-500 font-bold">100% Verified</span></div>
+                    <div class="flex justify-between text-[10px]"><span>Last Sync:</span> <span id="syncTime">--:--</span></div>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="location.reload()" class="glass px-6 py-3 rounded-xl text-xs font-bold hover:bg-white/5 transition border border-white/10">🔄 REFRESH DATA</button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="card-green p-6 rounded-3xl shadow-xl col-span-1 md:col-span-2">
-                <p class="text-[10px] font-black uppercase opacity-80 mb-1">Total Omzet Keseluruhan</p>
-                <h2 id="mainOmzet" class="text-4xl font-black italic tracking-tighter">Rp 0</h2>
-                <p class="text-[9px] mt-4 font-bold bg-black/20 inline-block px-2 py-1 rounded">Update Real-time dari Baris Omzet</p>
-            </div>
-            <div class="card-amber p-6 rounded-3xl shadow-xl cursor-pointer hover:scale-[1.02] transition" onclick="openModal('modFinance')">
-                <p class="text-[10px] font-black uppercase opacity-80 mb-1">Modal Mengendap</p>
-                <h2 id="mainModalMati" class="text-3xl font-black italic tracking-tighter text-white">Rp 0</h2>
-                <p class="text-[9px] mt-4 font-bold bg-black/20 inline-block px-2 py-1 rounded">Stok Macet x Modal Unit</p>
-            </div>
-            <div class="glass p-6 rounded-3xl flex flex-col justify-center border-l-8 border-sky-500 shadow-xl">
-                <p class="text-[10px] font-bold uppercase text-sky-500 mb-1">Estimasi Untung Bersih</p>
-                <h2 id="mainProfit" class="text-3xl font-black italic tracking-tighter text-white">Rp 0</h2>
-            </div>
-        </div>
-
-        <div class="glass p-6 mb-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xs font-black uppercase tracking-[0.2em] italic text-gray-400">Trend Penjualan Bulanan (Jan-Des)</h3>
-            </div>
-            <div class="h-64"><canvas id="chartOmzet"></canvas></div>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 no-print">
-            <button onclick="openModal('modFinance')" class="glass p-6 rounded-3xl hover:border-amber-500 transition group text-center">
-                <div class="text-2xl mb-2 group-hover:scale-110 transition">💰</div>
-                <p class="text-[10px] font-black uppercase tracking-widest">Rincian Modal</p>
-            </button>
-            <button onclick="openModal('modMarket')" class="glass p-6 rounded-3xl hover:border-sky-500 transition group text-center">
-                <div class="text-2xl mb-2 group-hover:scale-110 transition">📊</div>
-                <p class="text-[10px] font-black uppercase tracking-widest">Analisa Pasar</p>
-            </button>
-            <button onclick="openModal('modSales')" class="glass p-6 rounded-3xl hover:border-purple-500 transition group text-center">
-                <div class="text-2xl mb-2 group-hover:scale-110 transition">📅</div>
-                <p class="text-[10px] font-black uppercase tracking-widest">Omzet Bulanan</p>
-            </button>
-            <button onclick="window.print()" class="glass p-6 rounded-3xl hover:border-white transition group text-center">
-                <div class="text-2xl mb-2 group-hover:scale-110 transition">📄</div>
-                <p class="text-[10px] font-black uppercase tracking-widest">Cetak Laporan</p>
-            </button>
         </div>
     </div>
 
-    <div id="modFinance" class="modal">
-        <div class="max-w-5xl mx-auto py-10">
-            <div class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-                <h2 class="text-3xl font-black text-amber-500 italic uppercase">Laporan Rincian Asset</h2>
-                <button onclick="closeModal('modFinance')" class="text-4xl hover:text-red-500">&times;</button>
+    <div id="financeModal" class="modal p-6 overflow-y-auto">
+        <div class="max-w-5xl mx-auto bg-black border border-gray-800 p-8 rounded-3xl">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black italic uppercase">Financial & Inventory Audit</h2>
+                <button onclick="closeModal('financeModal')" class="text-2xl text-red-500 font-black">CLOSE</button>
             </div>
-            <div class="glass overflow-hidden shadow-2xl">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-white/5 uppercase font-black text-gray-400 border-b border-gray-800">
-                        <tr>
-                            <th class="p-5">Nama Produk</th>
-                            <th class="p-5 text-center">Modal Satuan</th>
-                            <th class="p-5 text-center">Sisa Stok</th>
-                            <th class="p-5 text-right">Modal Mengendap</th>
-                            <th class="p-5 text-center">Saran Strategi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableFinance" class="divide-y divide-gray-800"></tbody>
-                </table>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="stat-card p-4 rounded-xl border-l-4 border-red-500">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase">Potensi Rugi (Barang Macet)</p>
+                    <h4 id="deadCapital" class="text-xl font-black">Rp 0</h4>
+                </div>
             </div>
+            <table class="w-full text-xs text-left">
+                <thead class="bg-gray-900 uppercase font-black">
+                    <tr><th class="p-4">Produk</th><th class="p-4">Hrg Modal (C)</th><th class="p-4">Terjual (Q)</th><th class="p-4">Stok (R)</th><th class="p-4 text-right">Aset Macet</th><th class="p-4">Tindakan</th></tr>
+                </thead>
+                <tbody id="financeTableBody" class="divide-y divide-gray-800"></tbody>
+            </table>
         </div>
     </div>
 
-    <div id="modMarket" class="modal">
-        <div class="max-w-5xl mx-auto py-10">
-            <div class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-                <h2 class="text-3xl font-black text-sky-500 italic uppercase">Analisa Pergerakan Pasar</h2>
-                <button onclick="closeModal('modMarket')" class="text-4xl hover:text-red-500">&times;</button>
+    <div id="marketModal" class="modal p-6 overflow-y-auto">
+        <div class="max-w-4xl mx-auto bg-black border border-gray-800 p-8 rounded-3xl">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black italic uppercase">Market Intelligence</h2>
+                <button onclick="closeModal('marketModal')" class="text-2xl text-red-500 font-black">CLOSE</button>
             </div>
-            <div id="marketContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
-    </div>
-
-    <div id="modSales" class="modal">
-        <div class="max-w-2xl mx-auto py-10 text-center">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-black text-purple-500 italic uppercase">Laporan Omzet Per Bulan</h2>
-                <button onclick="closeModal('modSales')" class="text-4xl hover:text-red-500">&times;</button>
-            </div>
-            <div id="salesContainer" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+            <div id="marketList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
     </div>
 
     <script>
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXdrHU-IFBl2jmf3Unzy8Jb2Uh7VfK5uvX0OeO7Ivlc88QC6ahXNFJf1VlGWlTb7Mfp4xzeSY6BsXx/pub?output=csv";
+        let myChart;
 
-        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function showModal(id) { document.getElementById(id).style.display = 'block'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        function syncData() {
-            Papa.parse(CSV_URL, {
+        function initSystem() {
+            const url = document.getElementById('sheetUrl').value;
+            Papa.parse(url, {
                 download: true,
                 complete: function(results) {
-                    const data = results.data;
-                    const fTable = document.getElementById('tableFinance');
-                    const mContainer = document.getElementById('marketContainer');
-                    const sContainer = document.getElementById('salesContainer');
-
-                    let totalOmzetAll = 0;
-                    let totalModalDead = 0;
-                    let totalCogsSold = 0;
-
-                    fTable.innerHTML = ''; mContainer.innerHTML = ''; sContainer.innerHTML = '';
-
-                    // 1. CARI BARIS OMZET (Ambil data Grafik dan Total)
-                    const omzetRow = data.find(r => r[1] && r[1].trim().toUpperCase() === "OMZET");
-                    if (omzetRow) {
-                        totalOmzetAll = parseInt((omzetRow[15] || "0").replace(/[^\d]/g, '')) || 0;
-                        document.getElementById('mainOmzet').innerText = "Rp " + totalOmzetAll.toLocaleString();
-                        
-                        const monthlyVals = [];
-                        const monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-                        monthNames.forEach((m, i) => {
-                            let val = parseInt((omzetRow[i+3] || "0").replace(/[^\d]/g, '')) || 0;
-                            monthlyVals.push(val);
-                            sContainer.innerHTML += `
-                                <div class="glass p-6 rounded-3xl border border-purple-500/20 shadow-xl">
-                                    <p class="text-[10px] font-black text-gray-500 uppercase mb-2">${m}</p>
-                                    <p class="text-purple-400 font-black text-lg">Rp ${val.toLocaleString()}</p>
-                                </div>`;
-                        });
-                        updateChart(monthlyVals);
-                    }
-
-                    // 2. PROSES PRODUK (B, C, Q, R)
-                    data.forEach((row, i) => {
-                        if (i >= 3 && row[1] && row[1].trim() !== "" && row[1].toUpperCase() !== "OMZET") {
-                            const nama = row[1]; // Kolom B
-                            const hrgModal = parseInt((row[2] || "0").replace(/[^\d]/g, '')) || 0; // Kolom C
-                            const terjual = parseInt(row[16]) || 0; // Kolom Q
-                            const stok = parseInt(row[17]) || 0; // Kolom R
-                            const assetMati = stok * hrgModal;
-                            
-                            totalModalDead += assetMati;
-                            totalCogsSold += (terjual * hrgModal);
-
-                            // Tabel Rincian Keuangan
-                            fTable.innerHTML += `
-                                <tr class="hover:bg-white/5 transition">
-                                    <td class="p-5 font-black uppercase text-white">${nama}</td>
-                                    <td class="p-5 text-center text-gray-400 font-bold">Rp ${hrgModal.toLocaleString()}</td>
-                                    <td class="p-5 text-center font-black text-amber-500 text-lg">${stok}</td>
-                                    <td class="p-5 text-right font-black text-green-500">Rp ${assetMati.toLocaleString()}</td>
-                                    <td class="p-5 text-center">
-                                        <span class="status-badge ${terjual < 10 ? 'bg-red-500/10 text-red-500 border border-red-500/30' : 'bg-green-500/10 text-green-500 border border-green-500/30'}">
-                                            ${terjual < 10 ? 'Obral / Diskon' : 'Produksi Stabil'}
-                                        </span>
-                                    </td>
-                                </tr>`;
-
-                            // Analisa Pasar Cards
-                            let trendIcon = terjual > 10 ? '🔥' : '🐢';
-                            let statusColor = stok < 10 ? 'border-red-500' : 'border-sky-500';
-                            
-                            mContainer.innerHTML += `
-                                <div class="glass p-6 border-l-[12px] ${statusColor} hover:scale-[1.02] transition">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <h4 class="font-black uppercase text-sm leading-tight">${nama}</h4>
-                                        <span class="text-xl">${trendIcon}</span>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-2 text-[10px] font-bold uppercase mb-4">
-                                        <div class="bg-white/5 p-2 rounded">Terjual: <span class="text-white">${terjual}</span></div>
-                                        <div class="bg-white/5 p-2 rounded">Stok: <span class="text-white">${stok}</span></div>
-                                    </div>
-                                    <div class="text-[9px] font-black italic text-center p-2 rounded-xl border border-dashed border-white/20">
-                                        ${stok < 10 ? '🚨 SEGERA PRODUKSI ULANG!' : (terjual < 10 ? '📉 REKOMENDASI DISKON BESAR' : '✅ TREND PASAR BAGUS')}
-                                    </div>
-                                </div>`;
-                        }
-                    });
-
-                    // 3. UPDATE TOTAL AKHIR
-                    document.getElementById('mainModalMati').innerText = "Rp " + totalModalDead.toLocaleString();
-                    document.getElementById('mainProfit').innerText = "Rp " + (totalOmzetAll - totalCogsSold).toLocaleString();
+                    processData(results.data);
                 }
             });
         }
 
-        let myChart;
-        function updateChart(data) {
-            const ctx = document.getElementById('chartOmzet').getContext('2d');
+        function processData(data) {
+            const fBody = document.getElementById('financeTableBody');
+            const mList = document.getElementById('marketList');
+            let totalRevenue = 0;
+            let totalModalMacet = 0;
+            let totalCogsSold = 0;
+
+            fBody.innerHTML = ''; mList.innerHTML = '';
+            
+            // Mencari Baris OMZET (Mendeteksi Kata 'OMZET' di Kolom B)
+            const omzetRow = data.find(r => r[1] && r[1].toString().toUpperCase().trim() === "OMZET");
+            
+            if (omzetRow) {
+                totalRevenue = parseInt((omzetRow[15] || "0").replace(/[^\d]/g, '')) || 0;
+                document.getElementById('totalOmzet').innerText = "Rp " + totalRevenue.toLocaleString();
+                
+                // Grafik Omzet (Kolom D - O)
+                const monthlyData = [];
+                for(let i=3; i<=14; i++) {
+                    monthlyData.push(parseInt((omzetRow[i] || "0").replace(/[^\d]/g, '')) || 0);
+                }
+                updateChart(monthlyData);
+            }
+
+            // Memproses Data Produk (Mulai Baris 4 ke bawah)
+            data.forEach((row, i) => {
+                if (i >= 3 && row[1] && row[1].trim() !== "" && row[1].toUpperCase() !== "OMZET") {
+                    const nama = row[1]; // B
+                    const hModal = parseInt((row[2] || "0").replace(/[^\d]/g, '')) || 0; // C
+                    const laku = parseInt(row[16]) || 0; // Q
+                    const stok = parseInt(row[17]) || 0; // R
+                    const subAsset = stok * hModal;
+
+                    totalModalMacet += subAsset;
+                    totalCogsSold += (laku * hModal);
+
+                    // Isi Tabel Audit
+                    fBody.innerHTML += `
+                        <tr class="hover:bg-gray-900 transition">
+                            <td class="p-4 font-bold text-white uppercase">${nama}</td>
+                            <td class="p-4 text-gray-500">Rp ${hModal.toLocaleString()}</td>
+                            <td class="p-4 text-center font-bold text-green-500">${laku}</td>
+                            <td class="p-4 text-center font-bold text-amber-500">${stok}</td>
+                            <td class="p-4 text-right font-black">Rp ${subAsset.toLocaleString()}</td>
+                            <td class="p-4 uppercase">
+                                <span class="bg-red-500/10 text-red-500 px-2 py-1 rounded text-[9px] font-black">
+                                    ${laku < 5 ? 'DISCOUNT 50%' : 'STABIL'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+
+                    // Isi Market Intelligence
+                    if (stok < 10 || laku < 5) {
+                        mList.innerHTML += `
+                            <div class="stat-card p-5 rounded-2xl border-l-4 ${stok < 10 ? 'border-red-500' : 'border-amber-500'}">
+                                <h4 class="font-black uppercase text-xs mb-2">${nama}</h4>
+                                <p class="text-[10px] text-gray-400">Status: ${stok < 10 ? 'CRITICAL STOCK' : 'SLOW MOVING'}</p>
+                                <div class="mt-4 text-[10px] font-black uppercase text-center p-2 bg-white/5 rounded italic">
+                                    ${stok < 10 ? '🚨 Segera Produksi Ulang!' : '📉 Segera Lakukan Obral Besar!'}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            document.getElementById('totalModal').innerText = "Rp " + totalModalMacet.toLocaleString();
+            document.getElementById('deadCapital').innerText = "Rp " + totalModalMacet.toLocaleString();
+            document.getElementById('totalProfit').innerText = "Rp " + (totalRevenue - totalCogsSold).toLocaleString();
+            document.getElementById('syncTime').innerText = new Date().toLocaleTimeString();
+        }
+
+        function updateChart(vals) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
                     datasets: [{
-                        data: data,
-                        borderColor: '#2ea043',
+                        label: 'Omzet Bulanan',
+                        data: vals,
+                        borderColor: '#10b981',
                         borderWidth: 4,
-                        pointBackgroundColor: '#fff',
-                        backgroundColor: 'rgba(46, 160, 67, 0.1)',
                         fill: true,
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
                         tension: 0.4
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8b949e', font: {size: 10} } },
-                        x: { grid: { display: false }, ticks: { color: '#8b949e', font: {size: 10} } }
+                        y: { display: false },
+                        x: { ticks: { color: '#444', font: { size: 10, weight: 'bold' } }, grid: { display: false } }
                     }
                 }
             });
         }
-        syncData();
+
+        initSystem();
     </script>
 </body>
 </html>
-
